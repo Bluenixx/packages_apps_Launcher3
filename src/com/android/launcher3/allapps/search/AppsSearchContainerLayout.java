@@ -128,8 +128,6 @@ public class AppsSearchContainerLayout extends ExtendedEditText
         int expectedLeft = parent.getPaddingLeft() + (availableWidth - myWidth) / 2;
         int shift = expectedLeft - left;
         setTranslationX(shift);
-
-        offsetTopAndBottom(mContentOverlap);
     }
 
     @Override
