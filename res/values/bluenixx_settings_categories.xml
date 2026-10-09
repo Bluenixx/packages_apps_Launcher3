@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="bluenixx_category_home">Home screen</string>
+    <string name="bluenixx_category_drawer">App drawer</string>
+    <string name="bluenixx_category_icons">Icons</string>
+    <string name="bluenixx_category_advanced">Advanced</string>
+</resources>

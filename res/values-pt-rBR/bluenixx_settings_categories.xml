@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="bluenixx_category_home">Tela inicial</string>
+    <string name="bluenixx_category_drawer">Gaveta de apps</string>
+    <string name="bluenixx_category_icons">Ícones</string>
+    <string name="bluenixx_category_advanced">Avançado</string>
+</resources>
