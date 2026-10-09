@@ -32,6 +32,7 @@ import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup.MarginLayoutParams;
+import android.view.WindowInsets;
 
 import com.android.launcher3.DeviceProfile;
 import com.android.launcher3.ExtendedEditText;
@@ -43,6 +44,7 @@ import com.android.launcher3.allapps.AllAppsStore;
 import com.android.launcher3.allapps.BaseAllAppsAdapter.AdapterItem;
 import com.android.launcher3.allapps.PrivateProfileManager;
 import com.android.launcher3.allapps.SearchUiManager;
+import com.android.launcher3.anim.KeyboardInsetAnimationCallback;
 import com.android.launcher3.search.SearchCallback;
 import com.android.launcher3.util.ApiWrapper;
 import com.android.launcher3.views.ActivityContext;
@@ -84,6 +86,9 @@ public class AppsSearchContainerLayout extends ExtendedEditText
 
         mContentOverlap =
                 getResources().getDimensionPixelSize(R.dimen.all_apps_search_bar_content_overlap);
+
+        // Bluenixx: lift the bottom search bar above the keyboard.
+        setWindowInsetsAnimationCallback(new KeyboardInsetAnimationCallback(this));
     }
 
     @Override
@@ -196,6 +201,16 @@ public class AppsSearchContainerLayout extends ExtendedEditText
         mSearchQueryBuilder.clearSpans();
         Selection.setSelection(mSearchQueryBuilder, 0);
         mAppsView.onClearSearchResult();
+    }
+
+    @Override
+    public WindowInsets onApplyWindowInsets(WindowInsets insets) {
+        // The bar already rests above the nav bar, and the IME inset includes the nav bar.
+        int ime = insets.isVisible(WindowInsets.Type.ime())
+                ? insets.getInsets(WindowInsets.Type.ime()).bottom : 0;
+        int nav = insets.getInsets(WindowInsets.Type.navigationBars()).bottom;
+        setTranslationY(-Math.max(0, ime - nav));
+        return super.onApplyWindowInsets(insets);
     }
 
     @Override
