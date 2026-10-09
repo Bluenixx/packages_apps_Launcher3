@@ -71,7 +71,21 @@ public class AppsSearchContainerLayout extends ExtendedEditText
     private static final int SEARCH_BAR_BG_ALPHA = 115;
     private final int mMaxBarWidth;
     private android.graphics.drawable.Drawable mBaseBackground;
-    private com.android.internal.graphics.drawable.BackgroundBlurDrawable mBlurDrawable;
+    private boolean mBlurEnabled;
+    private final android.graphics.RenderNode mBlurNode =
+            new android.graphics.RenderNode("searchBarBackdropBlur");
+    private final android.graphics.Path mClipPath = new android.graphics.Path();
+    private final int[] mBarLoc = new int[2];
+    private final int[] mListLoc = new int[2];
+    private androidx.recyclerview.widget.RecyclerView mObservedList;
+    private final androidx.recyclerview.widget.RecyclerView.OnScrollListener mScrollListener =
+            new androidx.recyclerview.widget.RecyclerView.OnScrollListener() {
+                @Override
+                public void onScrolled(androidx.recyclerview.widget.RecyclerView rv,
+                        int dx, int dy) {
+                    invalidate();
+                }
+            };
     private final java.util.function.Consumer<Boolean> mBlurListener =
             this::onBlurEnabledChanged;
 
@@ -122,6 +136,10 @@ public class AppsSearchContainerLayout extends ExtendedEditText
         mAppsView.getAppsStore().removeUpdateListener(this);
         android.view.CrossWindowBlurListeners.getInstance().removeListener(mBlurListener);
         onBlurEnabledChanged(false);
+        if (mObservedList != null) {
+            mObservedList.removeOnScrollListener(mScrollListener);
+            mObservedList = null;
+        }
     }
 
     @Override
@@ -158,35 +176,63 @@ public class AppsSearchContainerLayout extends ExtendedEditText
     }
 
     private void onBlurEnabledChanged(boolean enabled) {
-        if (mBaseBackground == null) {
-            return;
-        }
-        if (enabled && mBlurDrawable == null) {
-            android.view.ViewRootImpl root = getViewRootImpl();
-            if (root == null) {
-                return;
-            }
-            mBlurDrawable = root.createBackgroundBlurDrawable();
-            if (mBlurDrawable == null) {
-                return;
-            }
-            mBlurDrawable.setBlurRadius(getResources()
-                    .getDimensionPixelSize(R.dimen.all_apps_search_bar_blur_radius));
-            mBlurDrawable.setCornerRadius(getHeight() / 2f);
-            setBackground(new android.graphics.drawable.LayerDrawable(
-                    new android.graphics.drawable.Drawable[] {mBlurDrawable, mBaseBackground}));
-        } else if (!enabled && mBlurDrawable != null) {
-            mBlurDrawable = null;
-            setBackground(mBaseBackground);
-        }
+        mBlurEnabled = enabled;
+        invalidate();
     }
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        if (mBlurDrawable != null) {
-            mBlurDrawable.setCornerRadius(h / 2f);
+        mClipPath.reset();
+        mClipPath.addRoundRect(0f, 0f, w, h, h / 2f, h / 2f, android.graphics.Path.Direction.CW);
+    }
+
+    @Override
+    public void draw(android.graphics.Canvas canvas) {
+        drawBackdropBlur(canvas);
+        super.draw(canvas);
+    }
+
+    /** Bluenixx: blurs the app list content that scrolls under the search bar. */
+    private void drawBackdropBlur(android.graphics.Canvas canvas) {
+        if (!mBlurEnabled || mAppsView == null || !canvas.isHardwareAccelerated()
+                || getWidth() <= 0 || getHeight() <= 0) {
+            return;
         }
+        View list = mAppsView.getActiveRecyclerView();
+        if (list == null || list.getWidth() <= 0) {
+            return;
+        }
+        if (list instanceof androidx.recyclerview.widget.RecyclerView && list != mObservedList) {
+            if (mObservedList != null) {
+                mObservedList.removeOnScrollListener(mScrollListener);
+            }
+            mObservedList = (androidx.recyclerview.widget.RecyclerView) list;
+            mObservedList.addOnScrollListener(mScrollListener);
+        }
+        getLocationInWindow(mBarLoc);
+        list.getLocationInWindow(mListLoc);
+        final int w = getWidth();
+        final int h = getHeight();
+        final float radius = getResources()
+                .getDimensionPixelSize(R.dimen.all_apps_search_bar_blur_radius);
+
+        mBlurNode.setPosition(0, 0, w, h);
+        android.graphics.RecordingCanvas rc = mBlurNode.beginRecording(w, h);
+        rc.translate(mListLoc[0] - mBarLoc[0], mListLoc[1] - mBarLoc[1]);
+        list.draw(rc);
+        mBlurNode.endRecording();
+        mBlurNode.setRenderEffect(android.graphics.RenderEffect.createBlurEffect(
+                radius, radius, android.graphics.Shader.TileMode.CLAMP));
+
+        int base = com.android.launcher3.util.Themes.getAttrColor(
+                getContext(), R.attr.allappsHeaderProtectionColor);
+        int save = canvas.save();
+        canvas.clipPath(mClipPath);
+        // opaque panel-colored backing hides the sharp icons that sit under the bar
+        canvas.drawColor(base | 0xFF000000);
+        canvas.drawRenderNode(mBlurNode);
+        canvas.restoreToCount(save);
     }
 
     @Override
