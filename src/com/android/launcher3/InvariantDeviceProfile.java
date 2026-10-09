@@ -25,6 +25,7 @@ import static com.android.launcher3.LauncherPrefs.GRID_NAME;
 import static com.android.launcher3.LauncherPrefs.NON_FIXED_LANDSCAPE_GRID_NAME;
 import static com.android.launcher3.LauncherPrefs.SHOW_DESKTOP_LABELS;
 import static com.android.launcher3.LauncherPrefs.SHOW_DRAWER_LABELS;
+import static com.android.launcher3.LauncherPrefs.DRAWER_ICON_SCALE;
 import static com.android.launcher3.LauncherPrefs.SHOW_HOTSEAT_QSB;
 import static com.android.launcher3.LauncherPrefs.WORKSPACE_ITEMS_LABEL_HIDDEN;
 import static com.android.launcher3.Utilities.dpiFromPx;
@@ -309,14 +310,15 @@ public class InvariantDeviceProfile {
                     DRAWER_OPEN_KEYBOARD.getSharedPrefKey().equals(key) ||
                     SHOW_DESKTOP_LABELS.getSharedPrefKey().equals(key) ||
                     SHOW_DRAWER_LABELS.getSharedPrefKey().equals(key) ||
+                    DRAWER_ICON_SCALE.getSharedPrefKey().equals(key) ||
                     SHOW_HOTSEAT_QSB.getSharedPrefKey().equals(key)) {
                 onConfigChanged();
             }
         };
         prefs.addListener(prefListener, FIXED_LANDSCAPE_MODE, ENABLE_TWOLINE_ALLAPPS_TOGGLE,
-                SHOW_HOTSEAT_QSB, SHOW_DESKTOP_LABELS, SHOW_DRAWER_LABELS);
+                SHOW_HOTSEAT_QSB, SHOW_DESKTOP_LABELS, SHOW_DRAWER_LABELS, DRAWER_ICON_SCALE);
         lifeCycle.addCloseable(() -> prefs.removeListener(prefListener,
-                FIXED_LANDSCAPE_MODE, ENABLE_TWOLINE_ALLAPPS_TOGGLE, SHOW_HOTSEAT_QSB, SHOW_DESKTOP_LABELS, SHOW_DRAWER_LABELS));
+                FIXED_LANDSCAPE_MODE, ENABLE_TWOLINE_ALLAPPS_TOGGLE, SHOW_HOTSEAT_QSB, SHOW_DESKTOP_LABELS, SHOW_DRAWER_LABELS, DRAWER_ICON_SCALE));
 
         SimpleBroadcastReceiver localeReceiver = new SimpleBroadcastReceiver(context,
                 mMainExecutor, i -> onConfigChanged());

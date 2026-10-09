@@ -94,6 +94,16 @@
         android:defaultValue="true"
         android:persistent="true" />
 
+    <SeekBarPreference
+        android:key="pref_drawer_icon_scale"
+        android:title="@string/drawer_icon_scale"
+        android:defaultValue="100"
+        android:max="130"
+        android:persistent="true"
+        launcher:min="100"
+        launcher:seekBarIncrement="5"
+        launcher:showSeekBarValue="true" />
+
     <SwitchPreferenceCompat
         android:defaultValue="true"
         android:key="pref_enable_minus_one"

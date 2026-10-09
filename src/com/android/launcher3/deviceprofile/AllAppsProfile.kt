@@ -90,7 +90,7 @@ data class AllAppsProfile(
                 calculateAllAppsBorderSpacePx(inv, metric, typeIndex, workspaceProfile.scale)
             var allAppsCellHeightPx =
                 (pxFromDp(inv.allAppsCellSize[typeIndex].y, metric) + allAppsBorderSpacePx.y)
-            var allAppsIconSizePx = pxFromDp(inv.allAppsIconSize[typeIndex], metric)
+            var allAppsIconSizePx = pxFromDp(inv.allAppsIconSize[typeIndex], metric) * com.android.launcher3.LauncherPrefs.DRAWER_ICON_SCALE.get(context) / 100
             val allAppsIconTextSizePx =
                 pxFromSp(inv.allAppsIconTextSize[typeIndex], metric).toFloat()
             val allAppsIconDrawablePaddingPx =
@@ -219,7 +219,7 @@ data class AllAppsProfile(
             workspaceProfile: WorkspaceProfile,
         ): AllAppsProfile {
             val allAppsBorderSpacePx = calculateAllAppsBorderSpacePx(inv, metric, typeIndex, scale)
-            val allAppsIconSizePx = max(1, pxFromDp(inv.allAppsIconSize[typeIndex], metric, scale))
+            val allAppsIconSizePx = max(1, pxFromDp(inv.allAppsIconSize[typeIndex], metric, scale) * com.android.launcher3.LauncherPrefs.DRAWER_ICON_SCALE.get(context) / 100)
             val allAppsIconDrawablePaddingPx =
                 res.getDimensionPixelSize(R.dimen.all_apps_icon_drawable_padding)
             val cellWidthPx = allAppsIconSizePx + (2 * allAppsIconDrawablePaddingPx)
@@ -297,8 +297,9 @@ data class AllAppsProfile(
             res: Resources,
             displayOptionSpec: DisplayOptionSpec,
             allAppsTopPadding: Int,
+            context: Context,
         ): AllAppsProfile {
-            var allAppsIconSizePx = responsiveAllAppsCellSpec.iconSize
+            var allAppsIconSizePx = responsiveAllAppsCellSpec.iconSize * com.android.launcher3.LauncherPrefs.DRAWER_ICON_SCALE.get(context) / 100
             var allAppsIconTextSizePx: Float = responsiveAllAppsCellSpec.iconTextSize.toFloat()
             var allAppsIconDrawablePaddingPx =
                 getNormalizedIconDrawablePadding(

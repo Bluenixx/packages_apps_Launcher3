@@ -400,7 +400,8 @@ public class DeviceProfile {
                     /*isVerticalBarLayout*/ isVerticalBarLayout(),
                     /*res*/ res,
                     /*displayOptionSpec*/ displayOptionSpec,
-                    /*allAppsTopPadding*/ allAppsTopPadding
+                    /*allAppsTopPadding*/ allAppsTopPadding,
+                    /*context*/ context
             );
         } else {
             mAllAppsProfile = AllAppsProfile.Factory.createAllAppsProfile(

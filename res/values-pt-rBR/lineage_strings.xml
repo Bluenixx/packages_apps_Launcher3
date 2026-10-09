@@ -46,4 +46,5 @@
     <string name="trust_apps_help">Ajuda</string>
     <string name="trust_apps_info_hidden">Os apps ocultos e seus widgets são ocultos da gaveta</string>
     <string name="trust_apps_info_protected">Os apps protegidos requerem autenticação para serem abertos</string>
+    <string name="drawer_icon_scale">Tamanho dos ícones na gaveta</string>
 </resources>
