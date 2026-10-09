@@ -67,6 +67,14 @@ public class AppsSearchContainerLayout extends ExtendedEditText
     // The amount of pixels to shift down and overlap with the rest of the content.
     private final int mContentOverlap;
 
+    // Bluenixx: fundo translucido (~45% opaco) + blur, hint e lupa centralizados como grupo.
+    private static final int SEARCH_BAR_BG_ALPHA = 115;
+    private final int mMaxBarWidth;
+    private android.graphics.drawable.Drawable mBaseBackground;
+    private com.android.internal.graphics.drawable.BackgroundBlurDrawable mBlurDrawable;
+    private final java.util.function.Consumer<Boolean> mBlurListener =
+            this::onBlurEnabledChanged;
+
     public AppsSearchContainerLayout(Context context) {
         this(context, null);
     }
@@ -89,18 +97,31 @@ public class AppsSearchContainerLayout extends ExtendedEditText
 
         // Bluenixx: lift the bottom search bar above the keyboard.
         setWindowInsetsAnimationCallback(new KeyboardInsetAnimationCallback(this));
+
+        mMaxBarWidth = getResources().getDimensionPixelSize(R.dimen.all_apps_search_bar_max_width);
+        android.graphics.drawable.Drawable bg = getBackground();
+        if (bg != null) {
+            mBaseBackground = bg.mutate();
+            mBaseBackground.setAlpha(SEARCH_BAR_BG_ALPHA);
+        }
     }
 
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
         mAppsView.getAppsStore().addUpdateListener(this);
+        android.view.CrossWindowBlurListeners blurListeners =
+                android.view.CrossWindowBlurListeners.getInstance();
+        blurListeners.addListener(getContext().getMainExecutor(), mBlurListener);
+        onBlurEnabledChanged(blurListeners.isCrossWindowBlurEnabled());
     }
 
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         mAppsView.getAppsStore().removeUpdateListener(this);
+        android.view.CrossWindowBlurListeners.getInstance().removeListener(mBlurListener);
+        onBlurEnabledChanged(false);
     }
 
     @Override
@@ -119,6 +140,7 @@ public class AppsSearchContainerLayout extends ExtendedEditText
         int iconPadding = cellWidth - iconVisibleSize;
 
         int myWidth = rowWidth - iconPadding + getPaddingLeft() + getPaddingRight();
+        myWidth = Math.min(myWidth, mMaxBarWidth);
         super.onMeasure(makeMeasureSpec(myWidth, EXACTLY), heightMeasureSpec);
     }
 
@@ -133,6 +155,55 @@ public class AppsSearchContainerLayout extends ExtendedEditText
         int expectedLeft = parent.getPaddingLeft() + (availableWidth - myWidth) / 2;
         int shift = expectedLeft - left;
         setTranslationX(shift);
+    }
+
+    private void onBlurEnabledChanged(boolean enabled) {
+        if (mBaseBackground == null) {
+            return;
+        }
+        if (enabled && mBlurDrawable == null) {
+            android.view.ViewRootImpl root = getViewRootImpl();
+            if (root == null) {
+                return;
+            }
+            mBlurDrawable = root.createBackgroundBlurDrawable();
+            if (mBlurDrawable == null) {
+                return;
+            }
+            mBlurDrawable.setBlurRadius(getResources()
+                    .getDimensionPixelSize(R.dimen.all_apps_search_bar_blur_radius));
+            mBlurDrawable.setCornerRadius(getHeight() / 2f);
+            setBackground(new android.graphics.drawable.LayerDrawable(
+                    new android.graphics.drawable.Drawable[] {mBlurDrawable, mBaseBackground}));
+        } else if (!enabled && mBlurDrawable != null) {
+            mBlurDrawable = null;
+            setBackground(mBaseBackground);
+        }
+    }
+
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        if (mBlurDrawable != null) {
+            mBlurDrawable.setCornerRadius(h / 2f);
+        }
+    }
+
+    @Override
+    protected void onDraw(android.graphics.Canvas canvas) {
+        int save = canvas.save();
+        CharSequence hint = getHint();
+        android.graphics.drawable.Drawable icon = getCompoundDrawablesRelative()[0];
+        if (length() == 0 && hint != null && icon != null) {
+            float groupWidth = icon.getIntrinsicWidth() + getCompoundDrawablePadding()
+                    + getPaint().measureText(hint, 0, hint.length());
+            float usable = getWidth() - getPaddingLeft() - getPaddingRight();
+            float dx = Math.max(0f, (usable - groupWidth) / 2f);
+            boolean rtl = getLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
+            canvas.translate(rtl ? -dx : dx, 0);
+        }
+        super.onDraw(canvas);
+        canvas.restoreToCount(save);
     }
 
     @Override

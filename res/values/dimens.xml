@@ -114,6 +114,9 @@
     <dimen name="all_apps_search_bar_field_height">52dp</dimen>
     <!-- all_apps_search_bar_field_height / 2 -->
     <dimen name="all_apps_search_bar_bottom_margin">8dp</dimen>
+    <!-- Bluenixx: largura maxima da pilula e raio do blur -->
+    <dimen name="all_apps_search_bar_max_width">300dp</dimen>
+    <dimen name="all_apps_search_bar_blur_radius">20dp</dimen>
     <dimen name="all_apps_search_bar_content_overlap">26dp</dimen>
     <!-- affects padding above apps lists when tabs and floating header rows are not visible -->
     <!-- (always affects padding above search results) -->

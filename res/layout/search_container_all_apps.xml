@@ -24,7 +24,7 @@
     android:layout_marginBottom="@dimen/all_apps_search_bar_bottom_margin"
     android:background="@drawable/bg_all_apps_searchbox"
     android:focusableInTouchMode="true"
-    android:gravity="center"
+    android:gravity="center_vertical|start"
     android:hint="@string/all_apps_search_bar_hint"
     android:imeOptions="actionSearch|flagNoExtractUi"
     android:importantForAutofill="no"
