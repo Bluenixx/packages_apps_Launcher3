@@ -51,6 +51,7 @@ import androidx.preference.PreferenceFragmentCompat.OnPreferenceStartFragmentCal
 import androidx.preference.PreferenceFragmentCompat.OnPreferenceStartScreenCallback;
 import androidx.preference.PreferenceGroup;
 import androidx.preference.PreferenceGroup.PreferencePositionCallback;
+import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceScreen;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -64,6 +65,7 @@ import com.android.launcher3.lineage.LineageUtils;
 import com.android.launcher3.lineage.trust.TrustAppsActivity;
 import com.android.launcher3.util.SafeCloseable;
 import com.android.launcher3.util.SettingsCache;
+import com.android.settingslib.widget.ExpressiveDesignEnabledProvider;
 import com.android.settingslib.widget.SettingsBasePreferenceFragment;
 import com.android.settingslib.widget.SettingsThemeHelper;
 
@@ -71,7 +73,8 @@ import com.android.settingslib.widget.SettingsThemeHelper;
  * Settings activity for Launcher.
  */
 public class SettingsActivity extends FragmentActivity
-        implements OnPreferenceStartFragmentCallback, OnPreferenceStartScreenCallback {
+        implements OnPreferenceStartFragmentCallback, OnPreferenceStartScreenCallback,
+                ExpressiveDesignEnabledProvider {
 
     @VisibleForTesting
     static final String DEVELOPER_OPTIONS_KEY = "pref_developer_options";
@@ -178,6 +181,11 @@ public class SettingsActivity extends FragmentActivity
     }
 
     @Override
+    public boolean isExpressiveDesignEnabled() {
+        return true;
+    }
+
+    @Override
     public Resources.Theme getTheme() {
         Resources.Theme theme = super.getTheme();
         if (SettingsThemeHelper.isExpressiveTheme(this)) {
@@ -235,12 +243,7 @@ public class SettingsActivity extends FragmentActivity
             setPreferencesFromResource(R.xml.launcher_preferences, rootKey);
 
             PreferenceScreen screen = getPreferenceScreen();
-            for (int i = screen.getPreferenceCount() - 1; i >= 0; i--) {
-                Preference preference = screen.getPreference(i);
-                if (!initPreference(preference)) {
-                    screen.removePreference(preference);
-                }
-            }
+            initGroup(screen);
 
             // If the target preference is not in the current preference screen, find the parent
             // preference screen that contains the target preference and set it as the preference
@@ -319,6 +322,21 @@ public class SettingsActivity extends FragmentActivity
         public void onSaveInstanceState(Bundle outState) {
             super.onSaveInstanceState(outState);
             outState.putBoolean(SAVE_HIGHLIGHTED_KEY, mPreferenceHighlighted);
+        }
+
+        private void initGroup(PreferenceGroup group) {
+            for (int i = group.getPreferenceCount() - 1; i >= 0; i--) {
+                Preference preference = group.getPreference(i);
+                if (preference instanceof PreferenceCategory) {
+                    PreferenceCategory category = (PreferenceCategory) preference;
+                    initGroup(category);
+                    if (category.getPreferenceCount() == 0) {
+                        group.removePreference(category);
+                    }
+                } else if (!initPreference(preference)) {
+                    group.removePreference(preference);
+                }
+            }
         }
 
         /**
