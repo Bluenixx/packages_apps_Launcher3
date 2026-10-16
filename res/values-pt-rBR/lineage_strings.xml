@@ -47,4 +47,7 @@
     <string name="trust_apps_info_hidden">Os apps ocultos e seus widgets são ocultos da gaveta</string>
     <string name="trust_apps_info_protected">Os apps protegidos requerem autenticação para serem abertos</string>
     <string name="drawer_icon_scale">Tamanho dos ícones na gaveta</string>
+    <string name="home_icon_scale">Tamanho dos ícones na tela inicial</string>
+    <string name="launcher_blur_enabled">Desfoque do launcher</string>
+    <string name="launcher_blur_amount">Intensidade do desfoque</string>
 </resources>

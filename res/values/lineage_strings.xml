@@ -78,4 +78,7 @@
     <string name="trust_apps_info_hidden">Hidden apps and their widgets are hidden from the drawer</string>
     <string name="trust_apps_info_protected">Protected apps require authentication to be opened from the launcher</string>
     <string name="drawer_icon_scale">Icon size in drawer</string>
+    <string name="home_icon_scale">Icon size on home screen</string>
+    <string name="launcher_blur_enabled">Launcher blur</string>
+    <string name="launcher_blur_amount">Blur intensity</string>
 </resources>
