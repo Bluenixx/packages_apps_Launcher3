@@ -89,6 +89,15 @@ public class BaseDepthControllerImpl<
      * Blur radius when completely zoomed out, in pixels.
      */
     protected final int mMaxBlurRadius;
+    private android.content.Context mBluenixxContext;
+
+    /** Max blur radius scaled by the Bluenixx blur prefs (0 when blur is disabled). */
+    protected int getScaledMaxBlurRadius() {
+        if (mBluenixxContext == null) return mMaxBlurRadius;
+        if (!com.android.launcher3.LauncherPrefs.BLUR_ENABLED.get(mBluenixxContext)) return 0;
+        return (int) (mMaxBlurRadius
+                * com.android.launcher3.LauncherPrefs.BLUR_AMOUNT.get(mBluenixxContext) / 100f);
+    }
     protected final WallpaperManager mWallpaperManager;
     protected boolean mCrossWindowBlursEnabled;
 
@@ -137,6 +146,7 @@ public class BaseDepthControllerImpl<
         mCrossWindowBlursEnabled = blurState.getValue();
         mMaxBlurRadius = container.getResources().getDimensionPixelSize(
                 R.dimen.max_depth_blur_radius_enhanced);
+        mBluenixxContext = container.getApplicationContext();
         mWallpaperManager = container.getSystemService(WallpaperManager.class);
 
         MultiPropertyFactory<BaseDepthControllerImpl<?, ?>> depthProperty =
@@ -257,7 +267,7 @@ public class BaseDepthControllerImpl<
         SurfaceControl blurSurface = mBlurSurface != null ? mBlurSurface : mBaseSurface;
 
         int previousBlur = mCurrentBlur;
-        int newBlur = shouldBlur() ? (int) (blurAmount * mMaxBlurRadius) : 0;
+        int newBlur = shouldBlur() ? (int) (blurAmount * getScaledMaxBlurRadius()) : 0;
         int delta = Math.abs(newBlur - previousBlur);
         if (skipSimilarBlur && delta < Utilities.dpToPx(1) && newBlur != 0 && previousBlur != 0
                 && blurAmount != 1f) {

@@ -610,6 +610,10 @@ public class LauncherBackAnimationController {
         mStatusBarHeight = SystemBarUtils.getStatusBarHeight(mLauncher);
         mMaxBlurRadius = mLauncher.getResources().getDimensionPixelSize(
             R.dimen.max_depth_blur_radius_enhanced);
+        mMaxBlurRadius = com.android.launcher3.LauncherPrefs.BLUR_ENABLED.get(mLauncher)
+                ? (int) (mMaxBlurRadius
+                        * com.android.launcher3.LauncherPrefs.BLUR_AMOUNT.get(mLauncher) / 100f)
+                : 0;
     }
 
     /**
