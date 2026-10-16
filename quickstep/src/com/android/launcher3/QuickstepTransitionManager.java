@@ -252,6 +252,13 @@ public class QuickstepTransitionManager implements OnDeviceProfileChangeListener
     private final float mClosingFreeformWindowTransY;
     private final float mMaxShadowRadius;
     private final int mMaxBlurRadius;
+
+    /** Max blur radius scaled by the Bluenixx blur prefs (0 when blur is disabled). */
+    private int getMaxBlurRadius() {
+        if (!com.android.launcher3.LauncherPrefs.BLUR_ENABLED.get(mLauncher)) return 0;
+        return (int) (mMaxBlurRadius
+                * com.android.launcher3.LauncherPrefs.BLUR_AMOUNT.get(mLauncher) / 100f);
+    }
     private final boolean mIsAppLaunchBlurEnabled;
 
     private final StartingWindowListener mStartingWindowListener = new StartingWindowListener();
@@ -987,7 +994,7 @@ public class QuickstepTransitionManager implements OnDeviceProfileChangeListener
                     NAV_FADE_IN_INTERPOLATOR, ANIMATION_DELAY_NAV_FADE_IN,
                     ANIMATION_NAV_FADE_IN_DURATION, APP_LAUNCH_DURATION));
 
-            FloatProp mBlurRadius = new FloatProp(0f, mMaxBlurRadius, DECELERATE_1_5);
+            FloatProp mBlurRadius = new FloatProp(0f, getMaxBlurRadius(), DECELERATE_1_5);
             FloatProp mBlurScrimAlpha = new FloatProp(0f, scrimAlpha, DECELERATE_1_5);
 
             @Override
@@ -1300,7 +1307,7 @@ public class QuickstepTransitionManager implements OnDeviceProfileChangeListener
                 if (mIsAppLaunchBlurEnabled && scrimLayer != null && scrimLayer.isValid()) {
                     SurfaceProperties builder = transaction.forSurface(scrimLayer);
                     builder.setAlpha(percent * scrimAlpha);
-                    builder.setBackgroundBlurRadius((int) (percent * mMaxBlurRadius));
+                    builder.setBackgroundBlurRadius((int) (percent * getMaxBlurRadius()));
                 }
 
                 surfaceApplier.scheduleApply(transaction);
