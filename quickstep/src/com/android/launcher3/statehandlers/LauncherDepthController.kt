@@ -32,7 +32,8 @@ class LauncherDepthController(
 ) : DepthController<LauncherState, QuickstepLauncher>(launcher, blurState) {
 
     override fun shouldBlur(): Boolean {
-        return super.shouldBlur() && !Flags.allAppsSurface()
+        return super.shouldBlur() && !Flags.allAppsSurface() &&
+            com.android.launcher3.LauncherPrefs.BLUR_ENABLED.get(launcher)
     }
 
     override fun onDepthAndBlurApplied() {
@@ -56,8 +57,8 @@ class LauncherDepthController(
         val blurEffect =
             if (shouldBlurWorkspace && mCurrentBlur > 0)
                 RenderEffect.createBlurEffect(
-                    mCurrentBlur.toFloat(),
-                    mCurrentBlur.toFloat(),
+                    (mCurrentBlur * com.android.launcher3.LauncherPrefs.BLUR_AMOUNT.get(launcher) / 100f).coerceAtLeast(0.1f),
+                    (mCurrentBlur * com.android.launcher3.LauncherPrefs.BLUR_AMOUNT.get(launcher) / 100f).coerceAtLeast(0.1f),
                     Shader.TileMode.DECAL,
                 ) // If blur is not desired, clear the blur effect from the depth targets.
             else null

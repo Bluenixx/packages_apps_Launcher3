@@ -429,7 +429,12 @@ public class InvariantDeviceProfile {
 
         inlineNavButtonsEndSpacing = closestProfile.inlineNavButtonsEndSpacing;
 
-        iconSize = displayOption.iconSizes;
+        float[] homeIconSizes = displayOption.iconSizes.clone();
+        float homeScale = LauncherPrefs.HOME_ICON_SCALE.get(context) / 100f;
+        for (int i = 0; i < homeIconSizes.length; i++) {
+            homeIconSizes[i] *= homeScale;
+        }
+        iconSize = homeIconSizes;
         float maxIconSize = iconSize[0];
         for (int i = 1; i < iconSize.length; i++) {
             maxIconSize = Math.max(maxIconSize, iconSize[i]);

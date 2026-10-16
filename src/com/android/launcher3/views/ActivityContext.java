@@ -252,7 +252,9 @@ public interface ActivityContext extends SavedStateRegistryOwner {
 
     /** @return {@code true} if all apps background blur is enabled */
     default boolean isAllAppsBackgroundBlurEnabled() {
-        return !shouldReduceWorkspaceBlurUsage(asContext()) && WindowBlurState.getInstance(
+        return !shouldReduceWorkspaceBlurUsage(asContext())
+                && com.android.launcher3.LauncherPrefs.BLUR_ENABLED.get(asContext())
+                && WindowBlurState.getInstance(
                 asContext()).getValue();
     }
 
