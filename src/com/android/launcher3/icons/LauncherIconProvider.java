@@ -78,17 +78,10 @@ public class LauncherIconProvider extends IconProvider {
     /** Bluenixx: ícone do icon pack ativo, se houver, senão o padrão. */
     @Override
     public android.graphics.drawable.Drawable getIcon(
-            android.content.pm.ActivityInfo info, int iconDpi) {
-        android.graphics.drawable.Drawable d = IconPackManager.getIcon(mContext,
+            android.content.pm.ComponentInfo info, int iconDpi) {
+        android.graphics.drawable.Drawable d = IconPackManager.getIcon(
+                mContext,
                 new android.content.ComponentName(info.packageName, info.name));
-        return d != null ? d : super.getIcon(info, iconDpi);
-    }
-
-    @Override
-    public android.graphics.drawable.Drawable getIcon(
-            android.content.pm.LauncherActivityInfo info, int iconDpi) {
-        android.graphics.drawable.Drawable d =
-                IconPackManager.getIcon(mContext, info.getComponentName());
         return d != null ? d : super.getIcon(info, iconDpi);
     }
 
