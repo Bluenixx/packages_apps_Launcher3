@@ -269,6 +269,7 @@ constructor(@ApplicationContext private val encryptedContext: Context) {
         @JvmField val HOME_ICON_SCALE = backedUpItem("pref_home_icon_scale", 100)
         @JvmField val BLUR_ENABLED = backedUpItem("pref_launcher_blur_enabled", true)
         @JvmField val BLUR_AMOUNT = backedUpItem("pref_launcher_blur_amount", 100)
+        @JvmField val ICON_PACK = backedUpItem("pref_icon_pack", "")
         @JvmField val SLEEP_GESTURE = backedUpItem("pref_sleep_gesture", false)
         @JvmField val WORKSPACE_LOCK = backedUpItem("pref_workspace_lock", false)
         @JvmField

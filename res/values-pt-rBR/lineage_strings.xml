@@ -50,4 +50,6 @@
     <string name="home_icon_scale">Tamanho dos ícones na tela inicial</string>
     <string name="launcher_blur_enabled">Desfoque do launcher</string>
     <string name="launcher_blur_amount">Intensidade do desfoque</string>
+    <string name="icon_pack">Pacote de ícones</string>
+    <string name="icon_pack_default">Padrão do sistema</string>
 </resources>
