@@ -347,6 +347,38 @@ public class SettingsActivity extends FragmentActivity
             LauncherApps launcherApps = getContext().getSystemService(LauncherApps.class);
             LauncherDisplayInfo info = DisplayController.INSTANCE.get(getContext()).getInfo();
             switch (preference.getKey()) {
+                case "pref_icon_pack": {
+                    androidx.preference.ListPreference lp =
+                            (androidx.preference.ListPreference) preference;
+                    java.util.List<com.android.launcher3.icons.IconPackManager.PackInfo> packs =
+                            com.android.launcher3.icons.IconPackManager
+                                    .getInstalledPacks(getContext());
+                    CharSequence[] entries = new CharSequence[packs.size() + 1];
+                    CharSequence[] values = new CharSequence[packs.size() + 1];
+                    entries[0] = getString(R.string.icon_pack_default);
+                    values[0] = "";
+                    for (int i = 0; i < packs.size(); i++) {
+                        entries[i + 1] = packs.get(i).label;
+                        values[i + 1] = packs.get(i).packageName;
+                    }
+                    lp.setEntries(entries);
+                    lp.setEntryValues(values);
+                    lp.setSummaryProvider(
+                            androidx.preference.ListPreference.SimpleSummaryProvider.getInstance());
+                    lp.setOnPreferenceChangeListener((pref, newValue) -> {
+                        getContext().getSharedPreferences(LauncherFiles.SHARED_PREFERENCES_KEY,
+                                android.content.Context.MODE_PRIVATE)
+                                .edit().putString("pref_icon_pack", (String) newValue).commit();
+                        android.widget.Toast.makeText(getContext(),
+                                "Reiniciando o launcher para aplicar os ícones...",
+                                android.widget.Toast.LENGTH_SHORT).show();
+                        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(
+                                () -> android.os.Process.killProcess(android.os.Process.myPid()),
+                                600);
+                        return true;
+                    });
+                    return true;
+                }
                 case NOTIFICATION_DOTS_PREFERENCE_KEY:
                     return BuildConfig.NOTIFICATION_DOTS_ENABLED;
                 case DEVELOPER_OPTIONS_KEY:

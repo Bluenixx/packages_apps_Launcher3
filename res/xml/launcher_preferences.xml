@@ -143,6 +143,12 @@
         android:key="bluenixx_category_icons"
         android:title="@string/bluenixx_category_icons">
 
+        <ListPreference
+            android:key="pref_icon_pack"
+            android:title="@string/icon_pack"
+            android:defaultValue=""
+            android:persistent="true" />
+
         <SwitchPreferenceCompat
             android:key="pref_allapps_themed_icons"
             android:title="@string/pref_themed_icons_title"
