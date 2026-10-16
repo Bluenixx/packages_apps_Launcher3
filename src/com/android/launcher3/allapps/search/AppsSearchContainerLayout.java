@@ -68,8 +68,11 @@ public class AppsSearchContainerLayout extends ExtendedEditText
     private final int mContentOverlap;
 
     // Bluenixx: fundo translucido (~45% opaco) + blur, hint e lupa centralizados como grupo.
-    private static final int SEARCH_BAR_BG_ALPHA = 115;
+    private static final int SEARCH_BAR_BG_ALPHA = 255;
     private final int mMaxBarWidth;
+    private android.graphics.drawable.Drawable mSearchIcon;
+    private final android.graphics.Paint mScrimPaint = new android.graphics.Paint();
+    private int mScrimKey;
     private android.graphics.drawable.Drawable mBaseBackground;
     private boolean mBlurEnabled;
     private final android.graphics.RenderNode mBlurNode =
@@ -123,6 +126,9 @@ public class AppsSearchContainerLayout extends ExtendedEditText
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
+        if (getParent() instanceof android.view.ViewGroup) {
+            ((android.view.ViewGroup) getParent()).setClipChildren(false);
+        }
         mAppsView.getAppsStore().addUpdateListener(this);
         android.view.CrossWindowBlurListeners blurListeners =
                 android.view.CrossWindowBlurListeners.getInstance();
@@ -159,6 +165,8 @@ public class AppsSearchContainerLayout extends ExtendedEditText
 
         int myWidth = rowWidth - iconPadding + getPaddingLeft() + getPaddingRight();
         myWidth = Math.min(myWidth, mMaxBarWidth);
+        myWidth = Math.min(myWidth, myRequestedWidth
+                - 2 * (int) (16 * getResources().getDisplayMetrics().density));
         super.onMeasure(makeMeasureSpec(myWidth, EXACTLY), heightMeasureSpec);
     }
 
@@ -176,7 +184,7 @@ public class AppsSearchContainerLayout extends ExtendedEditText
     }
 
     private void onBlurEnabledChanged(boolean enabled) {
-        mBlurEnabled = enabled;
+        mBlurEnabled = false; // Bluenixx: barra solida, blur desativado
         invalidate();
     }
 
@@ -189,6 +197,7 @@ public class AppsSearchContainerLayout extends ExtendedEditText
 
     @Override
     public void draw(android.graphics.Canvas canvas) {
+        drawBottomScrim(canvas);
         drawBackdropBlur(canvas);
         super.draw(canvas);
     }
@@ -235,21 +244,57 @@ public class AppsSearchContainerLayout extends ExtendedEditText
         canvas.restoreToCount(save);
     }
 
+    /** Bluenixx: gradiente atras da barra, preto no modo escuro e branco no claro. */
+    private void drawBottomScrim(android.graphics.Canvas canvas) {
+        if (!(getParent() instanceof android.view.ViewGroup) || getHeight() <= 0) return;
+        android.view.ViewGroup parent = (android.view.ViewGroup) getParent();
+        boolean dark = (getResources().getConfiguration().uiMode
+                & android.content.res.Configuration.UI_MODE_NIGHT_MASK)
+                == android.content.res.Configuration.UI_MODE_NIGHT_YES;
+        int solid = dark ? 0xFF000000 : 0xFFFFFFFF;
+        float fade = 72 * getResources().getDisplayMetrics().density;
+        float solidAt = getHeight() * 0.5f;
+        int key = (dark ? 1 : 0) + 31 * getHeight() + 961 * (int) fade;
+        if (mScrimPaint.getShader() == null || key != mScrimKey) {
+            mScrimKey = key;
+            mScrimPaint.setShader(new android.graphics.LinearGradient(0, -fade, 0, solidAt,
+                    solid & 0x00FFFFFF, solid, android.graphics.Shader.TileMode.CLAMP));
+        }
+        float ox = getLeft() + getTranslationX();
+        float oy = getTop() + getTranslationY();
+        canvas.drawRect(-ox, -fade, parent.getWidth() - ox, parent.getHeight() - oy,
+                mScrimPaint);
+    }
+
+    /** Bluenixx: lupa fixa no inicio da barra. */
+    private void drawSearchIcon(android.graphics.Canvas canvas) {
+        if (mSearchIcon == null) {
+            mSearchIcon = getContext().getDrawable(R.drawable.ic_allapps_search);
+            if (mSearchIcon == null) return;
+        }
+        int size = mSearchIcon.getIntrinsicWidth();
+        int margin = (int) (16 * getResources().getDisplayMetrics().density);
+        int top = (getHeight() - size) / 2;
+        boolean rtl = getLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
+        int left = (rtl ? getWidth() - margin - size : margin) + getScrollX();
+        mSearchIcon.setBounds(left, top, left + size, top + size);
+        mSearchIcon.draw(canvas);
+    }
+
     @Override
     protected void onDraw(android.graphics.Canvas canvas) {
         int save = canvas.save();
         CharSequence hint = getHint();
-        android.graphics.drawable.Drawable icon = getCompoundDrawablesRelative()[0];
-        if (length() == 0 && hint != null && icon != null) {
-            float groupWidth = icon.getIntrinsicWidth() + getCompoundDrawablePadding()
-                    + getPaint().measureText(hint, 0, hint.length());
-            float usable = getWidth() - getPaddingLeft() - getPaddingRight();
-            float dx = Math.max(0f, (usable - groupWidth) / 2f);
+        if (length() == 0 && hint != null) {
+            // Bluenixx: hint centralizado na barra inteira (a lupa fica no canto)
+            float hintWidth = getPaint().measureText(hint, 0, hint.length());
+            float dx = Math.max(0f, (getWidth() - hintWidth) / 2f - getPaddingStart());
             boolean rtl = getLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
             canvas.translate(rtl ? -dx : dx, 0);
         }
         super.onDraw(canvas);
         canvas.restoreToCount(save);
+        drawSearchIcon(canvas);
     }
 
     @Override
