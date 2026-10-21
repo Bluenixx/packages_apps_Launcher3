@@ -1338,9 +1338,9 @@ public class Folder extends AbstractFloatingView implements ClipPathView, DragSo
     }
 
     protected int getContentAreaHeight() {
-        int height = Math.min(getMaxContentAreaHeight(),
-                mContent.getDesiredHeight());
-        return Math.max(height, MIN_CONTENT_DIMEN);
+        int maxHeight = Math.max(MIN_CONTENT_DIMEN, getMaxContentAreaHeight());
+        return Math.max(MIN_CONTENT_DIMEN,
+                Math.min(maxHeight, mContent.getDesiredHeight()));
     }
 
     @VisibleForTesting
@@ -1352,12 +1352,15 @@ public class Folder extends AbstractFloatingView implements ClipPathView, DragSo
 
     @VisibleForTesting
     int getContentAreaWidth() {
-        return Math.max(mContent.getDesiredWidth(), MIN_CONTENT_DIMEN);
+        int desiredWidth = mContent.getDesiredWidth();
+        android.graphics.Rect bounds = mActivityContext.getFolderBoundingBox();
+        int availableWidth = bounds.width() - getPaddingLeft() - getPaddingRight();
+        return Math.max(MIN_CONTENT_DIMEN, Math.min(desiredWidth, availableWidth));
     }
 
     @VisibleForTesting
     int getFolderWidth() {
-        return getPaddingLeft() + getPaddingRight() + mContent.getDesiredWidth();
+        return getPaddingLeft() + getPaddingRight() + getContentAreaWidth();
     }
 
     @VisibleForTesting

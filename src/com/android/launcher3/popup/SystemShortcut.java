@@ -40,6 +40,7 @@ import com.android.launcher3.accessibility.LauncherAccessibilityDelegate;
 import com.android.launcher3.allapps.PrivateProfileManager;
 import com.android.launcher3.dagger.LauncherComponentProvider;
 import com.android.launcher3.logging.StatsLogManager;
+import com.android.launcher3.model.data.FolderInfo;
 import com.android.launcher3.model.data.ItemInfo;
 import com.android.launcher3.model.data.ItemInfoWithIcon;
 import com.android.launcher3.model.data.WorkspaceItemInfo;
@@ -270,6 +271,80 @@ public abstract class SystemShortcut<T extends ActivityContext> extends ItemInfo
     }
 
     public static final Factory<ActivityContext> REMOVE = RemoveApp::new;
+
+    public static final Factory<ActivityContext> BIG_FOLDER =
+            (context, itemInfo, originalView) -> {
+                if (!(itemInfo instanceof FolderInfo)) {
+                    return null;
+                }
+                boolean expanded = originalView.getContext().getSharedPreferences(
+                        "launcher_big_folders", Context.MODE_PRIVATE)
+                        .getBoolean("folder_" + itemInfo.id, false);
+                return new BigFolderToggle<>(context, itemInfo, originalView, expanded);
+            };
+
+    public static class BigFolderToggle<T extends ActivityContext> extends SystemShortcut<T> {
+        public BigFolderToggle(T target, ItemInfo itemInfo, @NonNull View originalView,
+                boolean expanded) {
+            super(R.drawable.ic_plus,
+                    expanded ? R.string.big_folder_collapse : R.string.big_folder_expand,
+                    target, itemInfo, originalView, false);
+        }
+
+        @Override
+        public void onClick(View view) {
+            Context context = view.getContext();
+            android.content.SharedPreferences prefs = context.getSharedPreferences(
+                    "launcher_big_folders", Context.MODE_PRIVATE);
+            String key = "folder_" + mItemInfo.id;
+
+            android.widget.LinearLayout layout = new android.widget.LinearLayout(context);
+            layout.setOrientation(android.widget.LinearLayout.VERTICAL);
+            int padding = (int) (20 * context.getResources().getDisplayMetrics().density);
+            layout.setPadding(padding, padding / 2, padding, 0);
+
+            android.widget.CheckBox expanded = new android.widget.CheckBox(context);
+            expanded.setText("Expand folder");
+            expanded.setChecked(prefs.getBoolean(key, false));
+            layout.addView(expanded);
+
+            android.widget.NumberPicker columns = new android.widget.NumberPicker(context);
+            columns.setMinValue(3);
+            columns.setMaxValue(8);
+            columns.setValue(Math.max(3, Math.min(8, prefs.getInt(key + "_columns", 5))));
+            columns.setWrapSelectorWheel(false);
+
+            android.widget.NumberPicker rows = new android.widget.NumberPicker(context);
+            rows.setMinValue(3);
+            rows.setMaxValue(8);
+            rows.setValue(Math.max(3, Math.min(8, prefs.getInt(key + "_rows", 5))));
+            rows.setWrapSelectorWheel(false);
+
+            android.widget.TextView columnsLabel = new android.widget.TextView(context);
+            columnsLabel.setText("Width — columns");
+            layout.addView(columnsLabel);
+            layout.addView(columns);
+
+            android.widget.TextView rowsLabel = new android.widget.TextView(context);
+            rowsLabel.setText("Height — rows");
+            layout.addView(rowsLabel);
+            layout.addView(rows);
+
+            new android.app.AlertDialog.Builder(context)
+                    .setTitle("Big Folder settings")
+                    .setView(layout)
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                        prefs.edit()
+                                .putBoolean(key, expanded.isChecked())
+                                .putInt(key + "_columns", columns.getValue())
+                                .putInt(key + "_rows", rows.getValue())
+                                .apply();
+                        AbstractFloatingView.closeAllOpenViews(mTarget);
+                    })
+                    .show();
+        }
+    }
 
     public static class RemoveApp<T extends ActivityContext> extends SystemShortcut<T> {
 

@@ -34,9 +34,12 @@ import java.util.List;
 public class FolderGridOrganizer {
 
     private final Point mPoint = new Point();
-    private final int mMaxCountX;
-    private final int mMaxCountY;
-    private final int mMaxItemsPerPage;
+    private int mMaxCountX;
+    private int mMaxCountY;
+    private int mMaxItemsPerPage;
+    private final int mNormalMaxCountX;
+    private final int mNormalMaxCountY;
+    private boolean mExpanded;
 
     private int mNumItemsInFolder;
     private int mCountX;
@@ -49,6 +52,8 @@ public class FolderGridOrganizer {
      * Note: must call {@link #setFolderInfo(FolderInfo)} manually for verifier to work.
      */
     public FolderGridOrganizer(int maxCountX, int maxCountY) {
+        mNormalMaxCountX = maxCountX;
+        mNormalMaxCountY = maxCountY;
         mMaxCountX = maxCountX;
         mMaxCountY = maxCountY;
         mMaxItemsPerPage = mMaxCountX * mMaxCountY;
@@ -62,6 +67,20 @@ public class FolderGridOrganizer {
                 profile.getFolderProfile().getNumColumns(),
                 profile.getFolderProfile().getNumRows()
         );
+    }
+
+    /** Sets custom grid dimensions for an expanded folder. */
+    public FolderGridOrganizer setExpanded(boolean expanded, int columns, int rows) {
+        mExpanded = expanded;
+        mMaxCountX = expanded
+                ? Math.max(3, Math.min(8, columns))
+                : mNormalMaxCountX;
+        mMaxCountY = expanded
+                ? Math.max(3, Math.min(8, rows))
+                : mNormalMaxCountY;
+        mMaxItemsPerPage = mMaxCountX * mMaxCountY;
+        mNumItemsInFolder = -1;
+        return this;
     }
 
     /**

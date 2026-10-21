@@ -353,6 +353,14 @@ public class FolderPagedView extends PagedView<PageIndicatorDots> implements Cli
             page.removeAllViews();
             pages.add(page);
         }
+        Context context = getContext();
+        android.content.SharedPreferences prefs = context.getSharedPreferences(
+                "launcher_big_folders", Context.MODE_PRIVATE);
+        String key = "folder_" + mFolder.getInfo().id;
+        boolean expanded = prefs.getBoolean(key, false);
+        int columns = prefs.getInt(key + "_columns", 5);
+        int rows = prefs.getInt(key + "_rows", 5);
+        mOrganizer.setExpanded(expanded, columns, rows);
         mOrganizer.setFolderInfo(mFolder.getInfo());
         setupContentDimensions(itemCount);
 
