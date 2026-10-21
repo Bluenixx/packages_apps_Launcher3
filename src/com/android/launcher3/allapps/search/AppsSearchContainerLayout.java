@@ -75,8 +75,6 @@ public class AppsSearchContainerLayout extends ExtendedEditText
     private boolean mBluenixxImeVisible;
 
     private android.graphics.drawable.Drawable mSearchIcon;
-    private final android.graphics.Paint mScrimPaint = new android.graphics.Paint();
-    private int mScrimKey;
     private android.graphics.drawable.Drawable mBaseBackground;
     private boolean mBlurEnabled;
     private final android.graphics.RenderNode mBlurNode =
@@ -207,7 +205,6 @@ public class AppsSearchContainerLayout extends ExtendedEditText
 
     @Override
     public void draw(android.graphics.Canvas canvas) {
-        drawBottomScrim(canvas);
         drawBackdropBlur(canvas);
         super.draw(canvas);
     }
@@ -252,28 +249,6 @@ public class AppsSearchContainerLayout extends ExtendedEditText
         canvas.drawColor(base | 0xFF000000);
         canvas.drawRenderNode(mBlurNode);
         canvas.restoreToCount(save);
-    }
-
-    /** Bluenixx: gradiente atras da barra, preto no modo escuro e branco no claro. */
-    private void drawBottomScrim(android.graphics.Canvas canvas) {
-        if (!(getParent() instanceof android.view.ViewGroup) || getHeight() <= 0) return;
-        android.view.ViewGroup parent = (android.view.ViewGroup) getParent();
-        boolean dark = (getResources().getConfiguration().uiMode
-                & android.content.res.Configuration.UI_MODE_NIGHT_MASK)
-                == android.content.res.Configuration.UI_MODE_NIGHT_YES;
-        int solid = dark ? 0xFF000000 : 0xFFFFFFFF;
-        float fade = 72 * getResources().getDisplayMetrics().density;
-        float solidAt = getHeight() * 0.5f;
-        int key = (dark ? 1 : 0) + 31 * getHeight() + 961 * (int) fade;
-        if (mScrimPaint.getShader() == null || key != mScrimKey) {
-            mScrimKey = key;
-            mScrimPaint.setShader(new android.graphics.LinearGradient(0, -fade, 0, solidAt,
-                    solid & 0x00FFFFFF, solid, android.graphics.Shader.TileMode.CLAMP));
-        }
-        float ox = getLeft() + getTranslationX();
-        float oy = getTop() + getTranslationY();
-        canvas.drawRect(-ox, -fade, parent.getWidth() - ox, parent.getHeight() - oy,
-                mScrimPaint);
     }
 
     /** Bluenixx: lupa fixa no inicio da barra. */

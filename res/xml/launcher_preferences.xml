@@ -99,6 +99,15 @@
             android:defaultValue="true"
             android:persistent="true" />
 
+        <ListPreference
+            android:key="pref_drawer_search_position"
+            android:title="@string/drawer_search_position_title"
+            android:summary="@string/drawer_search_position_summary"
+            android:entries="@array/drawer_search_position_entries"
+            android:entryValues="@array/drawer_search_position_values"
+            android:defaultValue="bottom"
+            android:persistent="true" />
+
         <SeekBarPreference
             android:layout="@layout/bluenixx_expressive_slider"
             android:key="pref_drawer_icon_scale"

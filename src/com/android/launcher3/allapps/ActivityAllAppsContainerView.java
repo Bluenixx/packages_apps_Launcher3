@@ -74,6 +74,7 @@ import com.android.launcher3.DropTarget.DragObject;
 import com.android.launcher3.Flags;
 import com.android.launcher3.Insettable;
 import com.android.launcher3.InsettableFrameLayout;
+import com.android.launcher3.LauncherPrefs;
 import com.android.launcher3.R;
 import com.android.launcher3.Utilities;
 import com.android.launcher3.allapps.BaseAllAppsAdapter.AdapterItem;
@@ -294,7 +295,8 @@ public class ActivityAllAppsContainerView<T extends Context & ActivityContext>
 
     /** Bluenixx: whether the search bar is docked at the bottom of this container. */
     protected boolean isSearchBarAtBottom() {
-        return true;
+        return "bottom".equals(LauncherPrefs.get(getContext())
+                .get(LauncherPrefs.DRAWER_SEARCH_POSITION));
     }
 
     private int getSearchBarMarginPx() {
@@ -306,6 +308,22 @@ public class ActivityAllAppsContainerView<T extends Context & ActivityContext>
     }
 
     private void setUpBottomSearchBar() {
+        if (mSearchContainer.getLayoutParams() instanceof RelativeLayout.LayoutParams) {
+            RelativeLayout.LayoutParams lp =
+                    (RelativeLayout.LayoutParams) mSearchContainer.getLayoutParams();
+            if (isSearchBarAtBottom()) {
+                lp.removeRule(RelativeLayout.ALIGN_PARENT_TOP);
+                lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+                lp.bottomMargin = getSearchBarBottomMargin();
+                lp.topMargin = 0;
+            } else {
+                lp.removeRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+                lp.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+                lp.topMargin = Math.max(mInsets.top, 0) + getSearchBarMarginPx();
+                lp.bottomMargin = 0;
+            }
+            mSearchContainer.setLayoutParams(lp);
+        }
         mSearchContainer.addOnLayoutChangeListener(
                 (view, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
                     if (bottom - top != oldBottom - oldTop) {
@@ -320,7 +338,13 @@ public class ActivityAllAppsContainerView<T extends Context & ActivityContext>
                 && mSearchContainer.getLayoutParams() instanceof RelativeLayout.LayoutParams) {
             RelativeLayout.LayoutParams lp =
                     (RelativeLayout.LayoutParams) mSearchContainer.getLayoutParams();
-            lp.bottomMargin = getSearchBarBottomMargin();
+            if (isSearchBarAtBottom()) {
+                lp.bottomMargin = getSearchBarBottomMargin();
+                lp.topMargin = 0;
+            } else {
+                lp.bottomMargin = 0;
+                lp.topMargin = Math.max(mInsets.top, 0) + getSearchBarMarginPx();
+            }
             mSearchContainer.setLayoutParams(lp);
         }
     }
@@ -712,6 +736,10 @@ public class ActivityAllAppsContainerView<T extends Context & ActivityContext>
                     + getSearchBarBottomMargin()
                     + getResources().getDimensionPixelSize(
                             R.dimen.fastscroll_bottom_margin_floating_search);
+        } else {
+            RelativeLayout.LayoutParams scrollerLayoutParams =
+                    (LayoutParams) mFastScroller.getLayoutParams();
+            scrollerLayoutParams.bottomMargin = 0;
         }
 
         mAllAppsStore.registerIconContainer(mAH.get(AdapterHolder.MAIN).mRecyclerView);

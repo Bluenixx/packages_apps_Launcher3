@@ -83,4 +83,14 @@
     <string name="launcher_blur_amount">Blur intensity</string>
     <string name="icon_pack">Icon pack</string>
     <string name="icon_pack_default">System default</string>
+    <string name="drawer_search_position_title">Search bar position</string>
+    <string name="drawer_search_position_summary">Choose whether the app drawer search bar appears at the top or bottom</string>
+    <string-array name="drawer_search_position_entries">
+        <item>Bottom</item>
+        <item>Top</item>
+    </string-array>
+    <string-array name="drawer_search_position_values">
+        <item>bottom</item>
+        <item>top</item>
+    </string-array>
 </resources>

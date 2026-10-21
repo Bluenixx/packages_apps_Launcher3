@@ -266,6 +266,7 @@ constructor(@ApplicationContext private val encryptedContext: Context) {
         @JvmField val SHOW_DESKTOP_LABELS = backedUpItem("pref_desktop_show_labels", true)
         @JvmField val SHOW_DRAWER_LABELS = backedUpItem("pref_drawer_show_labels", true)
         @JvmField val DRAWER_ICON_SCALE = backedUpItem("pref_drawer_icon_scale", 100)
+        @JvmField val DRAWER_SEARCH_POSITION = backedUpItem("pref_drawer_search_position", "bottom")
         @JvmField val HOME_ICON_SCALE = backedUpItem("pref_home_icon_scale", 100)
         @JvmField val BLUR_ENABLED = backedUpItem("pref_launcher_blur_enabled", true)
         @JvmField val BLUR_AMOUNT = backedUpItem("pref_launcher_blur_amount", 100)
