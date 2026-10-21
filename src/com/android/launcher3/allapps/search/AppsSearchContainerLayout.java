@@ -193,7 +193,8 @@ public class AppsSearchContainerLayout extends ExtendedEditText
     }
 
     private void onBlurEnabledChanged(boolean enabled) {
-        mBlurEnabled = false; // Bluenixx: barra solida, blur desativado
+        if (mBlurEnabled == enabled) return;
+        mBlurEnabled = enabled;
         invalidate();
     }
 
