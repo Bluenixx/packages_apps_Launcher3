@@ -16,6 +16,7 @@
 package com.android.launcher3.dagger
 
 import com.android.launcher3.Flags
+import com.android.launcher3.config.FeatureFlags
 import com.android.launcher3.WorkspaceSelectionManager
 import com.android.launcher3.WorkspaceSelectionManagerImpl
 import com.android.launcher3.WorkspaceSelectionManagerStub
@@ -31,7 +32,7 @@ class LauncherActivityContextModule {
     fun provideWorkspaceSelectionManager(
         activityContext: ActivityContext
     ): WorkspaceSelectionManager {
-        return if (Flags.enableWorkspaceSelection()) {
+        return if (Flags.enableWorkspaceSelection() || FeatureFlags.MULTI_SELECT_EDIT_MODE.get()) {
             WorkspaceSelectionManagerImpl(activityContext)
         } else {
             WorkspaceSelectionManagerStub()

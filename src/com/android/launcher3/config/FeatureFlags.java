@@ -58,8 +58,8 @@ public final class FeatureFlags {
     // TODO(Block 8): Clean up flags
 
     // TODO(Block 9): Clean up flags
-    public static final BooleanFlag MULTI_SELECT_EDIT_MODE = getDebugFlag(270709220,
-            "MULTI_SELECT_EDIT_MODE", DISABLED, "Enable new multi-select edit mode "
+    public static final BooleanFlag MULTI_SELECT_EDIT_MODE = getReleaseFlag(270709220,
+            "MULTI_SELECT_EDIT_MODE", ENABLED, "Enable new multi-select edit mode "
                     + "for home screen");
 
     // TODO(Block 11): Clean up flags

@@ -74,6 +74,12 @@ sealed interface WorkspaceSelectionManager {
 
     /** Handles the end of a box selection drag. */
     fun endBoxSelection()
+
+    /** Returns the currently selected workspace item views. */
+    fun getSelectedViews(): List<View>
+
+    /** Clears the current selection. */
+    fun clearSelection()
 }
 
 @ActivityContextSingleton
@@ -85,6 +91,10 @@ class WorkspaceSelectionManagerStub @Inject constructor() : WorkspaceSelectionMa
     override fun updateBoxSelection(boxBounds: Rect) = Unit
 
     override fun endBoxSelection() = Unit
+
+    override fun getSelectedViews(): List<View> = emptyList()
+
+    override fun clearSelection() = Unit
 }
 
 @ActivityContextSingleton
@@ -164,6 +174,13 @@ class WorkspaceSelectionManagerImpl @Inject constructor(val activityContext: Act
 
     override fun endBoxSelection() {
         boxSelectionState = null
+    }
+
+    override fun getSelectedViews(): List<View> = getSelectableViews().filter { it.isSelected }
+
+    override fun clearSelection() {
+        getSelectableViews().forEach { setViewSelected(it, false) }
+        anchorView = null
     }
 
     private fun findIntersectingViews(boxBounds: Rect): Set<View> {

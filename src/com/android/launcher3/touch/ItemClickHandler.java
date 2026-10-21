@@ -18,6 +18,7 @@ package com.android.launcher3.touch;
 import static com.android.launcher3.LauncherConstants.ActivityCodes.REQUEST_BIND_PENDING_APPWIDGET;
 import static com.android.launcher3.LauncherConstants.ActivityCodes.REQUEST_RECONFIGURE_APPWIDGET;
 import static com.android.launcher3.logging.StatsLogManager.LauncherEvent.LAUNCHER_FOLDER_OPEN;
+import static com.android.launcher3.LauncherState.EDIT_MODE;
 import static com.android.launcher3.logging.StatsLogManager.LauncherEvent.LAUNCHER_PRIVATE_SPACE_INSTALL_APP_BUTTON_TAP;
 import static com.android.launcher3.model.data.ItemInfoWithIcon.FLAG_DISABLED_BY_PUBLISHER;
 import static com.android.launcher3.model.data.ItemInfoWithIcon.FLAG_DISABLED_FILE_SYSTEM_NOT_READY;
@@ -99,6 +100,14 @@ public class ItemClickHandler {
 
         Launcher launcher = Launcher.getLauncher(v.getContext());
         if (!launcher.getWorkspace().isFinishedSwitchingState()) return;
+
+        if (launcher.isInState(EDIT_MODE)
+                && (v instanceof BubbleTextView || v instanceof FolderIcon
+                || v instanceof AppPairIcon)) {
+            launcher.getActivityComponent().getWorkspaceSelectionManager().updateItemSelection(
+                    v, com.android.launcher3.WorkspaceSelectionManager.ItemSelectionType.TOGGLE_SINGLE);
+            return;
+        }
 
         Trace.beginSection("ItemClickHandler#onClick");
         Object tag = v.getTag();

@@ -24,11 +24,18 @@ import static com.android.launcher3.LauncherState.NORMAL;
 import static com.android.launcher3.LauncherState.OVERVIEW;
 import static com.android.launcher3.logging.StatsLogManager.LauncherEvent.LAUNCHER_ALLAPPS_ITEM_LONG_PRESSED;
 
+import android.app.AlertDialog;
 import android.view.View;
 import android.view.View.OnLongClickListener;
 
 import com.android.launcher3.DropTarget;
 import com.android.launcher3.Launcher;
+import com.android.launcher3.LauncherState;
+import com.android.launcher3.WorkspaceSelectionManager;
+import com.android.launcher3.celllayout.CellLayout;
+import com.android.launcher3.folder.FolderIcon;
+import com.android.launcher3.model.data.FolderInfo;
+import com.android.launcher3.model.data.WorkspaceItemInfo;
 import com.android.launcher3.celllayout.CellInfo;
 import com.android.launcher3.dragndrop.DragController;
 import com.android.launcher3.dragndrop.DragOptions;
@@ -60,9 +67,11 @@ public class ItemLongClickListener {
         }
         Launcher launcher = Launcher.getLauncher(v.getContext());
         if (!canStartDrag(launcher)) return false;
-        if (!launcher.isInState(NORMAL)
-                && !launcher.isInState(OVERVIEW)
-                && !launcher.isInState(EDIT_MODE)) {
+        if (launcher.isInState(EDIT_MODE)) {
+            showSelectionActions(launcher);
+            return true;
+        }
+        if (!launcher.isInState(NORMAL) && !launcher.isInState(OVERVIEW)) {
             return false;
         }
         if (!(v.getTag() instanceof ItemInfo)) return false;
@@ -70,6 +79,86 @@ public class ItemLongClickListener {
         launcher.setWaitingForResult(null);
         beginDrag(v, launcher, (ItemInfo) v.getTag(), new DragOptions());
         return true;
+    }
+
+
+    private static void showSelectionActions(Launcher launcher) {
+        WorkspaceSelectionManager selectionManager = launcher.getActivityComponent()
+                .getWorkspaceSelectionManager();
+        java.util.List<View> selected = new java.util.ArrayList<>(
+                selectionManager.getSelectedViews());
+        if (selected.isEmpty()) {
+            return;
+        }
+
+        boolean canCreateFolder = selected.size() >= 2;
+        for (View view : selected) {
+            if (!(view.getTag() instanceof WorkspaceItemInfo)) {
+                canCreateFolder = false;
+                break;
+            }
+        }
+        java.util.List<String> actions = new java.util.ArrayList<>();
+        actions.add(launcher.getString(com.android.launcher3.R.string.remove_drop_target_label));
+        if (canCreateFolder) {
+            actions.add(launcher.getString(com.android.launcher3.R.string.create_new_folder_button_text));
+        }
+        actions.add(launcher.getString(android.R.string.cancel));
+
+        final boolean allowFolder = canCreateFolder;
+        new AlertDialog.Builder(launcher)
+                .setTitle(launcher.getString(com.android.launcher3.R.string.edit_home_screen)
+                        + " (" + selected.size() + ")")
+                .setItems(actions.toArray(new String[0]), (dialog, which) -> {
+                    if (which == 0) {
+                        for (View itemView : selected) {
+                            if (itemView.getTag() instanceof ItemInfo itemInfo) {
+                                launcher.removeItem(itemView, itemInfo, true);
+                            }
+                        }
+                        selectionManager.clearSelection();
+                        launcher.getStateManager().goToState(LauncherState.NORMAL);
+                    } else if (allowFolder && which == 1) {
+                        createFolderFromSelection(launcher, selected, selectionManager);
+                    }
+                })
+                .show();
+    }
+
+    private static void createFolderFromSelection(Launcher launcher, java.util.List<View> selected,
+            WorkspaceSelectionManager selectionManager) {
+        if (selected.size() < 2) return;
+        View firstView = selected.get(0);
+        if (!(firstView.getTag() instanceof WorkspaceItemInfo firstInfo)) return;
+        com.android.launcher3.celllayout.CellPosMapper.CellPos presenterPos =
+                launcher.getCellPosMapper().mapModelToPresenter(firstInfo);
+        int container = firstInfo.container;
+        int screenId = presenterPos.screenId;
+        int cellX = presenterPos.cellX;
+        int cellY = presenterPos.cellY;
+        CellLayout layout = launcher.getCellLayout(container, screenId);
+        if (layout == null) return;
+        java.util.List<WorkspaceItemInfo> items = new java.util.ArrayList<>();
+        for (View view : selected) {
+            if (view.getTag() instanceof WorkspaceItemInfo item) {
+                items.add(item);
+                launcher.getWorkspace().removeWorkspaceItem(view);
+            }
+        }
+        FolderIcon folderIcon = launcher.addFolder(layout, container, screenId, cellX, cellY);
+        FolderInfo folderInfo = folderIcon.mInfo;
+        for (int i = 0; i < items.size(); i++) {
+            WorkspaceItemInfo item = items.get(i);
+            folderInfo.add(item);
+            launcher.getModelWriter().moveItemInDatabase(item, folderInfo.id, 0, i, 0);
+            item.container = folderInfo.id;
+            item.screenId = 0;
+            item.cellX = i;
+            item.cellY = 0;
+        }
+        folderIcon.onItemsChanged(false);
+        selectionManager.clearSelection();
+        launcher.getStateManager().goToState(LauncherState.NORMAL);
     }
 
     public static void beginDrag(View v, Launcher launcher, ItemInfo info,
