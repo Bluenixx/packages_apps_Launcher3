@@ -1041,6 +1041,7 @@ public abstract class RecentsView<
         // OverviewActionsView related.
         mIs3PLauncher = !mOverviewComponentObserver.isHomeAndOverviewSame();
         mActionsView = actionsView;
+        mActionsView.setClearAllListener(() -> dismissAllTasks(mClearAllButton));
         mActionsView.updateHiddenFlags(HIDDEN_NO_TASKS, !hasTaskViews());
         // Update flags for 1p/3p launchers
         mActionsView.updateFor3pLauncher(mIs3PLauncher);

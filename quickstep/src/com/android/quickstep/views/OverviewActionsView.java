@@ -144,6 +144,7 @@ public class OverviewActionsView<T extends OverlayUICallbacks> extends FrameLayo
 
     /** Container for the action buttons below a focused, non-split Overview tile. */
     protected LinearLayout mActionButtons;
+    private Runnable mClearAllListener;
     private Button mSplitButton;
     /**
      * The "save app pair" button. Currently this is the only button that is not contained in
@@ -211,6 +212,8 @@ public class OverviewActionsView<T extends OverlayUICallbacks> extends FrameLayo
         // casting this.
         View screenshotButton = findViewById(R.id.action_screenshot);
         screenshotButton.setOnClickListener(this);
+        View clearAllButton = findViewById(R.id.action_clear_all_bottom);
+        clearAllButton.setOnClickListener(this);
         mSplitButton = findViewById(R.id.action_split);
         mSplitButton.setOnClickListener(this);
         mSaveAppPairButton.setOnClickListener(this);
@@ -225,8 +228,18 @@ public class OverviewActionsView<T extends OverlayUICallbacks> extends FrameLayo
         mCallbacks = callbacks;
     }
 
+    public void setClearAllListener(Runnable listener) {
+        mClearAllListener = listener;
+    }
+
     @Override
     public void onClick(View view) {
+        if (view.getId() == R.id.action_clear_all_bottom) {
+            if (mClearAllListener != null) {
+                mClearAllListener.run();
+            }
+            return;
+        }
         if (mCallbacks == null) {
             return;
         }
