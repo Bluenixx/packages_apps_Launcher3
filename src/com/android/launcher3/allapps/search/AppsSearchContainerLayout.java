@@ -70,6 +70,10 @@ public class AppsSearchContainerLayout extends ExtendedEditText
     // Bluenixx: fundo translucido (~45% opaco) + blur, hint e lupa centralizados como grupo.
     private static final int SEARCH_BAR_BG_ALPHA = 255;
     private final int mMaxBarWidth;
+    private float mBluenixxWidthExpansion = 0.88f;
+    private android.animation.ValueAnimator mBluenixxWidthAnimator;
+    private boolean mBluenixxImeVisible;
+
     private android.graphics.drawable.Drawable mSearchIcon;
     private final android.graphics.Paint mScrimPaint = new android.graphics.Paint();
     private int mScrimKey;
@@ -116,6 +120,9 @@ public class AppsSearchContainerLayout extends ExtendedEditText
         setWindowInsetsAnimationCallback(new KeyboardInsetAnimationCallback(this));
 
         mMaxBarWidth = getResources().getDimensionPixelSize(R.dimen.all_apps_search_bar_max_width);
+        setElevation(0f);
+        setTranslationZ(0f);
+
         android.graphics.drawable.Drawable bg = getBackground();
         if (bg != null) {
             mBaseBackground = bg.mutate();
@@ -165,6 +172,8 @@ public class AppsSearchContainerLayout extends ExtendedEditText
 
         int myWidth = rowWidth - iconPadding + getPaddingLeft() + getPaddingRight();
         myWidth = Math.min(myWidth, mMaxBarWidth);
+        myWidth = (int) (myWidth * mBluenixxWidthExpansion);
+
         myWidth = Math.min(myWidth, myRequestedWidth
                 - 2 * (int) (16 * getResources().getDisplayMetrics().density));
         super.onMeasure(makeMeasureSpec(myWidth, EXACTLY), heightMeasureSpec);
@@ -365,11 +374,34 @@ public class AppsSearchContainerLayout extends ExtendedEditText
         mAppsView.onClearSearchResult();
     }
 
+    private void animateBluenixxWidth(boolean imeVisible) {
+        if (mBluenixxImeVisible == imeVisible) {
+            return;
+        }
+        mBluenixxImeVisible = imeVisible;
+
+        if (mBluenixxWidthAnimator != null) {
+            mBluenixxWidthAnimator.cancel();
+        }
+
+        float target = imeVisible ? 1.0f : 0.88f;
+        mBluenixxWidthAnimator = android.animation.ValueAnimator.ofFloat(
+                mBluenixxWidthExpansion, target);
+        mBluenixxWidthAnimator.setDuration(220);
+        mBluenixxWidthAnimator.addUpdateListener(animator -> {
+            mBluenixxWidthExpansion = (float) animator.getAnimatedValue();
+            requestLayout();
+        });
+        mBluenixxWidthAnimator.start();
+    }
+
     @Override
     public WindowInsets onApplyWindowInsets(WindowInsets insets) {
+        boolean imeVisible = insets.isVisible(WindowInsets.Type.ime());
+        animateBluenixxWidth(imeVisible);
+
         // The bar already rests above the nav bar, and the IME inset includes the nav bar.
-        int ime = insets.isVisible(WindowInsets.Type.ime())
-                ? insets.getInsets(WindowInsets.Type.ime()).bottom : 0;
+        int ime = imeVisible ? insets.getInsets(WindowInsets.Type.ime()).bottom : 0;
         int nav = insets.getInsets(WindowInsets.Type.navigationBars()).bottom;
         setTranslationY(-Math.max(0, ime - nav));
         return super.onApplyWindowInsets(insets);
