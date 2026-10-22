@@ -74,6 +74,7 @@ import com.android.launcher3.DropTarget.DragObject;
 import com.android.launcher3.Flags;
 import com.android.launcher3.Insettable;
 import com.android.launcher3.InsettableFrameLayout;
+import com.android.launcher3.LauncherPrefChangeListener;
 import com.android.launcher3.LauncherPrefs;
 import com.android.launcher3.R;
 import com.android.launcher3.Utilities;
@@ -176,6 +177,16 @@ public class ActivityAllAppsContainerView<T extends Context & ActivityContext>
     private boolean mIsSearching;
     private boolean mRebindAdaptersAfterSearchAnimation;
     private int mNavBarScrimHeight = 0;
+    private boolean mSearchBarLayoutListenerAdded = false;
+    private final LauncherPrefChangeListener mSearchPositionListener = key -> {
+        if (LauncherPrefs.DRAWER_SEARCH_POSITION.getSharedPrefKey().equals(key)) {
+            post(() -> {
+                setUpBottomSearchBar();
+                requestLayout();
+            });
+        }
+    };
+
     private SearchRecyclerView mSearchRecyclerView;
     protected SearchAdapterProvider<?> mMainAdapterProvider;
     private View mBottomSheetHandleArea;
@@ -324,12 +335,15 @@ public class ActivityAllAppsContainerView<T extends Context & ActivityContext>
             }
             mSearchContainer.setLayoutParams(lp);
         }
-        mSearchContainer.addOnLayoutChangeListener(
-                (view, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
-                    if (bottom - top != oldBottom - oldTop) {
-                        post(this::onBottomSearchBarResized);
-                    }
-                });
+        if (!mSearchBarLayoutListenerAdded) {
+            mSearchContainer.addOnLayoutChangeListener(
+                    (view, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
+                        if (bottom - top != oldBottom - oldTop) {
+                            post(this::onBottomSearchBarResized);
+                        }
+                    });
+            mSearchBarLayoutListenerAdded = true;
+        }
         updateBottomSearchBarMargin();
     }
 
@@ -412,6 +426,8 @@ public class ActivityAllAppsContainerView<T extends Context & ActivityContext>
             mActivityContext.getDragLayer().addView(mSearchContainer);
             mSearchUiDelegate.onInitializeSearchBar();
         }
+        LauncherPrefs.get(getContext()).addListener(
+                mSearchPositionListener, LauncherPrefs.DRAWER_SEARCH_POSITION);
         mActivityContext.addOnDeviceProfileChangeListener(this);
     }
 
@@ -419,6 +435,8 @@ public class ActivityAllAppsContainerView<T extends Context & ActivityContext>
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         mActivityContext.removeOnDeviceProfileChangeListener(this);
+        LauncherPrefs.get(getContext()).removeListener(
+                mSearchPositionListener, LauncherPrefs.DRAWER_SEARCH_POSITION);
     }
 
     public SearchUiManager getSearchUiManager() {
