@@ -50,4 +50,10 @@ class FakeWorkspaceSelectionManager(
     ) {
         // No-op
     }
+
+    override fun getSelectedViews(): List<View> = emptyList()
+
+    override fun clearSelection() {
+        // No-op
+    }
 }
