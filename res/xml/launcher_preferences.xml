@@ -18,8 +18,9 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:launcher="http://schemas.android.com/apk/res-auto">
 
-    <PreferenceCategory
+    <androidx.preference.PreferenceScreen
         android:key="bluenixx_category_home"
+        android:persistent="false"
         android:title="@string/bluenixx_category_home">
 
         <SwitchPreferenceCompat
@@ -80,10 +81,11 @@
             launcher:seekBarIncrement="5"
             launcher:showSeekBarValue="true" />
 
-    </PreferenceCategory>
+    </androidx.preference.PreferenceScreen>
 
-    <PreferenceCategory
+    <androidx.preference.PreferenceScreen
         android:key="bluenixx_category_drawer"
+        android:persistent="false"
         android:title="@string/bluenixx_category_drawer">
 
         <SwitchPreferenceCompat
@@ -146,10 +148,11 @@
             <intent android:action="android.settings.ACTION_CONTENT_SUGGESTIONS_SETTINGS" />
         </androidx.preference.PreferenceScreen>
 
-    </PreferenceCategory>
+    </androidx.preference.PreferenceScreen>
 
-    <PreferenceCategory
+    <androidx.preference.PreferenceScreen
         android:key="bluenixx_category_icons"
+        android:persistent="false"
         android:title="@string/bluenixx_category_icons">
 
         <ListPreference
@@ -171,16 +174,17 @@
             android:persistent="false"
             android:widgetLayout="@layout/notification_pref_warning" />
 
-    </PreferenceCategory>
+    </androidx.preference.PreferenceScreen>
 
-    <PreferenceCategory
+    <androidx.preference.PreferenceScreen
         android:key="bluenixx_category_advanced"
+        android:persistent="false"
         android:title="@string/bluenixx_category_advanced">
 
         <Preference
             android:key="pref_trust_apps"
             android:title="@string/trust_apps_manager_name" />
 
-    </PreferenceCategory>
+    </androidx.preference.PreferenceScreen>
 
 </androidx.preference.PreferenceScreen>
