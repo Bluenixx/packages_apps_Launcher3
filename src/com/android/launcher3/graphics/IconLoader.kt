@@ -129,7 +129,13 @@ constructor(
                 mainIcon
             } else {
                 // Wrap the main icon in AID
-                LauncherIcons.obtain(context).use { li -> li.wrapToAdaptiveIcon(mainIcon) }
+                LauncherIcons.obtain(context).use { li ->
+                            li.wrapToAdaptiveIcon(
+                                mainIcon,
+                                com.android.launcher3.icons.BaseIconFactory.IconOptions()
+                                    .setWrapperBackgroundColor(Color.TRANSPARENT)
+                            )
+                        }
             }
 
         // Inject theme icon drawable
