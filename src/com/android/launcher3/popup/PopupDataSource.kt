@@ -74,10 +74,27 @@ object PopupDataSource {
         }
 }
 
-object FolderSystemShortcuts : PopupDataMapper {
+    val bigFolderPopupData = PopupData(
+        iconResId = R.drawable.ic_plus,
+        labelResId = R.string.big_folder_expand,
+        category = PopupCategory.SYSTEM_SHORTCUT_FIXED,
+        popupAction = { activityContext, itemInfo, view ->
+            SystemShortcut.BIG_FOLDER
+                .getShortcut(activityContext, itemInfo, view)
+                ?.onClick(view)
+        },
+    )
 
+object FolderSystemShortcuts : PopupDataMapper {
     override fun getPopupDataByItemInfo(itemInfo: ItemInfo): List<PopupData>? =
-        if (itemInfo.itemType == ITEM_TYPE_FOLDER) listOf(PopupDataSource.removePopupData) else null
+        if (itemInfo.itemType == ITEM_TYPE_FOLDER) {
+            listOf(
+                bigFolderPopupData,
+                PopupDataSource.removePopupData,
+            )
+        } else {
+            null
+        }
 }
 
 object AppPairSystemShortcuts : PopupDataMapper {
