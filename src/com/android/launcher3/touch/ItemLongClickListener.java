@@ -32,7 +32,7 @@ import com.android.launcher3.DropTarget;
 import com.android.launcher3.Launcher;
 import com.android.launcher3.LauncherState;
 import com.android.launcher3.WorkspaceSelectionManager;
-import com.android.launcher3.celllayout.CellLayout;
+import com.android.launcher3.CellLayout;
 import com.android.launcher3.folder.FolderIcon;
 import com.android.launcher3.model.data.FolderInfo;
 import com.android.launcher3.model.data.WorkspaceItemInfo;
