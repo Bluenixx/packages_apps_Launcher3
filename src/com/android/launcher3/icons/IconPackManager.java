@@ -94,7 +94,8 @@ public final class IconPackManager {
         if (id == 0) id = sPackRes.getIdentifier(name, "mipmap", pack);
         if (id == 0) return null;
         try {
-            return sPackRes.getDrawable(id, null);
+            return sPackRes.getDrawableForDensity(
+                    id, c.getResources().getDisplayMetrics().densityDpi, null);
         } catch (Resources.NotFoundException e) {
             return null;
         }
