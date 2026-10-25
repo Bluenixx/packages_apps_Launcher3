@@ -52,4 +52,9 @@
     <string name="launcher_blur_amount">Intensidade do desfoque</string>
     <string name="icon_pack">Pacote de ícones</string>
     <string name="icon_pack_default">Padrão do sistema</string>
+    <string name="big_folder_settings">Tamanho da pasta</string>
+    <string name="big_folder_columns">Largura (colunas)</string>
+    <string name="big_folder_rows">Altura (linhas)</string>
+    <string name="flower_shape_title">Flor</string>
+    <string name="soft_burst_shape_title">Explosão suave</string>
 </resources>

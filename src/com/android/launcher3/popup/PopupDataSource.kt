@@ -76,7 +76,7 @@ object PopupDataSource {
 
     val bigFolderPopupData = PopupData(
         iconResId = R.drawable.ic_plus,
-        labelResId = R.string.big_folder_expand,
+        labelResId = R.string.big_folder_settings,
         category = PopupCategory.SYSTEM_SHORTCUT_FIXED,
         popupAction = { activityContext, itemInfo, view ->
             SystemShortcut.BIG_FOLDER

@@ -253,6 +253,9 @@
     <string name="remove_system_shortcut_label">Remove</string>
     <string name="big_folder_expand">Expand folder</string>
     <string name="big_folder_collapse">Collapse folder</string>
+    <string name="big_folder_settings">Folder size</string>
+    <string name="big_folder_columns">Width (columns)</string>
+    <string name="big_folder_rows">Height (rows)</string>
     <!-- Context menu action for a file/folder on the home screen which copies the item. [CHAR_LIMIT=20] -->
     <string name="home_screen_files_context_menu_copy_label">Copy</string>
     <!-- Context menu action for a file/folder on the home screen which opens the item using its corresponding application. [CHAR_LIMIT=20] -->
@@ -657,6 +660,8 @@
     <string name="seven_sided_cookie_shape_title">7-sided cookie</string>
     <!-- label for arch shape option in customization picker -->
     <string name="arch_shape_title">Arch</string>
+    <string name="flower_shape_title">Flower</string>
+    <string name="soft_burst_shape_title">Soft burst</string>
 
     <!-- Strings for home screen files -->
     <!-- Text for create new folder button [CHAR LIMIT=30] -->

@@ -287,7 +287,7 @@ public abstract class SystemShortcut<T extends ActivityContext> extends ItemInfo
         public BigFolderToggle(T target, ItemInfo itemInfo, @NonNull View originalView,
                 boolean expanded) {
             super(R.drawable.ic_plus,
-                    expanded ? R.string.big_folder_collapse : R.string.big_folder_expand,
+                    R.string.big_folder_settings,
                     target, itemInfo, originalView, false);
         }
 
@@ -304,7 +304,7 @@ public abstract class SystemShortcut<T extends ActivityContext> extends ItemInfo
             layout.setPadding(padding, padding / 2, padding, 0);
 
             android.widget.CheckBox expanded = new android.widget.CheckBox(context);
-            expanded.setText("Expand folder");
+            expanded.setText(R.string.big_folder_expand);
             expanded.setChecked(prefs.getBoolean(key, false));
             layout.addView(expanded);
 
@@ -321,17 +321,17 @@ public abstract class SystemShortcut<T extends ActivityContext> extends ItemInfo
             rows.setWrapSelectorWheel(false);
 
             android.widget.TextView columnsLabel = new android.widget.TextView(context);
-            columnsLabel.setText("Width — columns");
+            columnsLabel.setText(R.string.big_folder_columns);
             layout.addView(columnsLabel);
             layout.addView(columns);
 
             android.widget.TextView rowsLabel = new android.widget.TextView(context);
-            rowsLabel.setText("Height — rows");
+            rowsLabel.setText(R.string.big_folder_rows);
             layout.addView(rowsLabel);
             layout.addView(rows);
 
             new android.app.AlertDialog.Builder(context)
-                    .setTitle("Big Folder settings")
+                    .setTitle(R.string.big_folder_settings)
                     .setView(layout)
                     .setNegativeButton(android.R.string.cancel, null)
                     .setPositiveButton(android.R.string.ok, (dialog, which) -> {

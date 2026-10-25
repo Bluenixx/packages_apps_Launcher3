@@ -11,6 +11,11 @@ Base: packages_apps_Launcher3 (LineageOS/AOSP). Não foi compilado (sem ambiente
 - Realce da multisseleção (UtilitiesKt.kt): Paints reutilizados (antes alocava em onDraw), raio em dp, cor SecondaryContainer.
 - Pastas: interpolators emphasized_decelerate/accelerate e duração 300ms.
 
+## Fase 3
+- FolderGridOrganizer: grade antiga é limitada aos máximos atuais (bug ao recolher pasta expandida).
+- Pasta grande: diálogo "Tamanho da pasta" com strings localizadas (antes texto fixo em inglês); rótulo do atalho agora é fixo "Folder size".
+- ShapesProvider: novas formas Flower e Soft burst (paths gerados por curva polar), strings en + pt-BR.
+
 ## Pendente
 - Formas expressivas (cookie/squircle) nos ícones e nas pastas (PreviewBackground, FolderIcon).
 - Springs/animações expressivas em FolderAnimationManager e AllAppsTransitionController.

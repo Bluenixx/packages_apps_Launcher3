@@ -122,8 +122,10 @@ public class FolderGridOrganizer {
      */
     private void calculateGridSize(int count) {
         boolean done;
-        int gridCountX = mCountX;
-        int gridCountY = mCountY;
+        // The previous grid may be larger than the current limits (e.g. collapsing an expanded
+        // folder), so clamp it before iterating.
+        int gridCountX = Math.min(mCountX, mMaxCountX);
+        int gridCountY = Math.min(mCountY, mMaxCountY);
 
         if (count >= mMaxItemsPerPage) {
             gridCountX = mMaxCountX;
