@@ -360,6 +360,18 @@ public class FolderPagedView extends PagedView<PageIndicatorDots> implements Cli
         boolean expanded = prefs.getBoolean(key, false);
         int columns = prefs.getInt(key + "_columns", 5);
         int rows = prefs.getInt(key + "_rows", 5);
+        if (expanded) {
+            // Keep the big folder inside the screen: limit columns/rows to what actually fits.
+            DeviceProfile dp = mFolder.mActivityContext.getDeviceProfile();
+            android.graphics.Point gap = dp.getFolderProfile().getCellLayoutBorderSpacePx();
+            int cellW = Math.max(1, dp.getFolderProfile().getCellWidthPx());
+            int cellH = Math.max(1, dp.getFolderProfile().getCellHeightPx());
+            int availW = mFolder.mActivityContext.getFolderBoundingBox().width()
+                    - mFolder.getPaddingLeft() - mFolder.getPaddingRight();
+            int availH = mFolder.getMaxContentAreaHeight();
+            columns = Math.max(2, Math.min(columns, (availW + gap.x) / (cellW + gap.x)));
+            rows = Math.max(2, Math.min(rows, (availH + gap.y) / (cellH + gap.y)));
+        }
         mOrganizer.setExpanded(expanded, columns, rows);
         mOrganizer.setFolderInfo(mFolder.getInfo());
         setupContentDimensions(itemCount);

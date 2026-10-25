@@ -16,6 +16,10 @@ Base: packages_apps_Launcher3 (LineageOS/AOSP). Não foi compilado (sem ambiente
 - Pasta grande: diálogo "Tamanho da pasta" com strings localizadas (antes texto fixo em inglês); rótulo do atalho agora é fixo "Folder size".
 - ShapesProvider: novas formas Flower e Soft burst (paths gerados por curva polar), strings en + pt-BR.
 
+## Fase 4
+- Causa de "pasta grande continua pequena": FolderGridOrganizer.calculateGridSize encolhia a grade ao nº de itens mesmo expandida. Agora, expandida usa sempre colunas x linhas configuradas.
+- FolderPagedView.arrangeChildren: colunas/linhas limitadas ao que cabe na tela (largura do bounding box, altura máxima do conteúdo); mínimo 2.
+
 ## Pendente
 - Formas expressivas (cookie/squircle) nos ícones e nas pastas (PreviewBackground, FolderIcon).
 - Springs/animações expressivas em FolderAnimationManager e AllAppsTransitionController.

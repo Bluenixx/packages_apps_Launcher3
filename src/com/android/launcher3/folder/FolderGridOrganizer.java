@@ -73,10 +73,10 @@ public class FolderGridOrganizer {
     public FolderGridOrganizer setExpanded(boolean expanded, int columns, int rows) {
         mExpanded = expanded;
         mMaxCountX = expanded
-                ? Math.max(3, Math.min(8, columns))
+                ? Math.max(2, Math.min(8, columns))
                 : mNormalMaxCountX;
         mMaxCountY = expanded
-                ? Math.max(3, Math.min(8, rows))
+                ? Math.max(2, Math.min(8, rows))
                 : mNormalMaxCountY;
         mMaxItemsPerPage = mMaxCountX * mMaxCountY;
         mNumItemsInFolder = -1;
@@ -121,6 +121,12 @@ public class FolderGridOrganizer {
      * maintaining the restrictions of {@link #mMaxCountX} &amp; {@link #mMaxCountY}.
      */
     private void calculateGridSize(int count) {
+        if (mExpanded) {
+            // Expanded (big) folders always use the full configured grid, even with few items.
+            mCountX = mMaxCountX;
+            mCountY = mMaxCountY;
+            return;
+        }
         boolean done;
         // The previous grid may be larger than the current limits (e.g. collapsing an expanded
         // folder), so clamp it before iterating.
