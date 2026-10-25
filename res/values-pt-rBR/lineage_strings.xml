@@ -58,4 +58,6 @@
     <string name="flower_shape_title">Flor</string>
     <string name="soft_burst_shape_title">Explosão suave</string>
     <string name="select_up_to_here">Selecionar até aqui</string>
+    <string name="selection_bar_hint">Selecione itens</string>
+    <string name="selection_bar_count">%1$d selecionado(s)</string>
 </resources>

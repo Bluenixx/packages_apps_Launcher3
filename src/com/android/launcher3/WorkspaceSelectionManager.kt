@@ -80,6 +80,9 @@ sealed interface WorkspaceSelectionManager {
 
     /** Clears the current selection. */
     fun clearSelection()
+
+    /** Registers a listener invoked after the selection changes. Pass null to remove it. */
+    fun setSelectionListener(listener: Runnable?) = Unit
 }
 
 @ActivityContextSingleton
@@ -164,6 +167,7 @@ class WorkspaceSelectionManagerImpl @Inject constructor(val activityContext: Act
         if (itemSelectionType != ItemSelectionType.RANGE || anchorView == null) {
             anchorView = view
         }
+        notifySelectionChanged()
     }
 
     /** Returns selectable views between [from] and [to] (inclusive) in row-major grid order. */
@@ -192,6 +196,7 @@ class WorkspaceSelectionManagerImpl @Inject constructor(val activityContext: Act
         } else {
             handleNewSelection(itemsInBox)
         }
+        notifySelectionChanged()
     }
 
     override fun endBoxSelection() {
@@ -203,6 +208,17 @@ class WorkspaceSelectionManagerImpl @Inject constructor(val activityContext: Act
     override fun clearSelection() {
         getSelectableViews().forEach { setViewSelected(it, false) }
         anchorView = null
+        notifySelectionChanged()
+    }
+
+    private var selectionListener: Runnable? = null
+
+    override fun setSelectionListener(listener: Runnable?) {
+        selectionListener = listener
+    }
+
+    private fun notifySelectionChanged() {
+        selectionListener?.run()
     }
 
     private fun findIntersectingViews(boxBounds: Rect): Set<View> {

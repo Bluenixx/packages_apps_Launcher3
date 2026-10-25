@@ -38,9 +38,14 @@ Base: packages_apps_Launcher3 (LineageOS/AOSP). Não foi compilado (sem ambiente
 - Removido o rastreamento de Shift (Launcher.java / ItemClickHandler.java).
 - Seleção em intervalo por toque: em EDIT_MODE, com algo já selecionado, o toque longo em outro item oferece "Selecionar até aqui" (ItemSelectionType.RANGE a partir do último item tocado). Strings em/pt-BR: select_up_to_here.
 
+## Fase 9
+- Nova barra de ações MD3 no topo em EDIT_MODE: views/SelectionActionBar.java (contador, Remover, Nova pasta, Cancelar). Anexada/removida em Launcher.onStateSetEnd.
+- WorkspaceSelectionManager.setSelectionListener (default no-op) notifica mudanças de seleção.
+- ItemLongClickListener: helpers públicos removeSelection/canCreateFolder/sortedSelection. O diálogo por toque longo continua, agora também útil para "Selecionar até aqui".
+- Não testado visualmente: posição (topMargin = status bar + 8dp) e cores (SurfaceContainerHigh/OnSurface) precisam ser conferidos no aparelho.
+
 ## Pendente
 - Formas expressivas (cookie/squircle) nos ícones e nas pastas (PreviewBackground, FolderIcon).
 - Springs/animações expressivas em FolderAnimationManager e AllAppsTransitionController.
 - Pastas grandes: paginação/scroll em FolderPagedView, revisar clipping em FolderAnimationManager.
-- Barra de seleção/ações da multisseleção (UI), realce com SecondaryContainer em drawWorkspaceItemSelectionHighlight.
 - Tipografia e cores dinâmicas em todo res/values*/styles.xml.

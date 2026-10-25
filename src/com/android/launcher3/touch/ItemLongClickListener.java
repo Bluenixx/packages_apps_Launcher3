@@ -140,13 +140,7 @@ public class ItemLongClickListener {
                         selectionManager.updateItemSelection(pressed,
                                 WorkspaceSelectionManager.ItemSelectionType.RANGE);
                     } else if (which == base) {
-                        for (View itemView : selected) {
-                            if (itemView.getTag() instanceof ItemInfo itemInfo) {
-                                launcher.removeItem(itemView, itemInfo, true);
-                            }
-                        }
-                        selectionManager.clearSelection();
-                        launcher.getStateManager().goToState(LauncherState.NORMAL);
+                        removeSelection(launcher, selected, selectionManager);
                     } else if (allowFolder && which == base + 1) {
                         createFolderFromSelection(launcher, selected, selectionManager);
                     }
@@ -154,7 +148,43 @@ public class ItemLongClickListener {
                 .show();
     }
 
-    private static void createFolderFromSelection(Launcher launcher, java.util.List<View> selected,
+    /** Removes all the given selected views from the workspace and leaves edit mode. */
+    public static void removeSelection(Launcher launcher, java.util.List<View> selected,
+            WorkspaceSelectionManager selectionManager) {
+        for (View itemView : selected) {
+            if (itemView.getTag() instanceof ItemInfo itemInfo) {
+                launcher.removeItem(itemView, itemInfo, true);
+            }
+        }
+        selectionManager.clearSelection();
+        launcher.getStateManager().goToState(LauncherState.NORMAL);
+    }
+
+    /** Whether the selection only has loose shortcuts, so it can be merged into a new folder. */
+    public static boolean canCreateFolder(java.util.List<View> selected) {
+        if (selected.size() < 2) return false;
+        for (View view : selected) {
+            if (!(view.getTag() instanceof WorkspaceItemInfo item) || item.container >= 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /** Returns the selected views sorted by screen, row and column. */
+    public static java.util.List<View> sortedSelection(WorkspaceSelectionManager manager) {
+        java.util.List<View> selected = new java.util.ArrayList<>(manager.getSelectedViews());
+        selected.sort(java.util.Comparator
+                .comparingInt((View view) -> view.getTag() instanceof ItemInfo info
+                        ? info.screenId : 0)
+                .thenComparingInt(view -> view.getTag() instanceof ItemInfo info
+                        ? info.cellY : 0)
+                .thenComparingInt(view -> view.getTag() instanceof ItemInfo info
+                        ? info.cellX : 0));
+        return selected;
+    }
+
+    public static void createFolderFromSelection(Launcher launcher, java.util.List<View> selected,
             WorkspaceSelectionManager selectionManager) {
         if (selected.size() < 2) return;
         View firstView = selected.get(0);

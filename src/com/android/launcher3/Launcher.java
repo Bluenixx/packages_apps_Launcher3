@@ -1064,10 +1064,20 @@ public class Launcher extends StatefulActivity<LauncherState>
         return Optional.of(LAUNCHER_ALLAPPS_ENTRY_WITH_DEVICE_SEARCH);
     }
 
+    private com.android.launcher3.views.SelectionActionBar mSelectionActionBar;
+
     @Override
     public void onStateSetEnd(LauncherState state) {
         super.onStateSetEnd(state);
-        if (state != EDIT_MODE) {
+        if (state == EDIT_MODE) {
+            if (mSelectionActionBar == null) {
+                mSelectionActionBar = com.android.launcher3.views.SelectionActionBar.attach(this);
+            }
+        } else {
+            if (mSelectionActionBar != null) {
+                mSelectionActionBar.detach();
+                mSelectionActionBar = null;
+            }
             // Never keep a stale multi-selection once edit mode is left.
             getActivityComponent().getWorkspaceSelectionManager().clearSelection();
         }
