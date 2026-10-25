@@ -25,6 +25,11 @@ Base: packages_apps_Launcher3 (LineageOS/AOSP). Não foi compilado (sem ambiente
 - bg_all_apps_searchbox.xml: raio 100dp (pílula) para casar com o recorte do blur (h/2).
 - Observação (não alterado): KeyboardInsetAnimationCallback usa -ime.bottom no arrasto manual, sem descontar a barra de navegação (diferente de onApplyWindowInsets da busca); callback é compartilhado com Folder e WorkUtilityView.
 
+## Fase 6
+- ItemLongClickListener: toque longo em EDIT_MODE agora seleciona o item pressionado (antes não fazia nada com seleção vazia); seleção ordenada por tela/linha/coluna; "Criar pasta" só com atalhos soltos (container < 0).
+- Launcher.onStateSetEnd: limpa a multisseleção ao sair de EDIT_MODE.
+- Observação: ItemSelectionType.RANGE (fase 1) ainda não é acionado por nenhum gesto; falta ligar shift+clique/teclado em ItemClickHandler.
+
 ## Pendente
 - Formas expressivas (cookie/squircle) nos ícones e nas pastas (PreviewBackground, FolderIcon).
 - Springs/animações expressivas em FolderAnimationManager e AllAppsTransitionController.

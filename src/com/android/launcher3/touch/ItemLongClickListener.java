@@ -68,7 +68,7 @@ public class ItemLongClickListener {
         Launcher launcher = Launcher.getLauncher(v.getContext());
         if (!canStartDrag(launcher)) return false;
         if (launcher.isInState(EDIT_MODE)) {
-            showSelectionActions(launcher);
+            showSelectionActions(launcher, v);
             return true;
         }
         if (!launcher.isInState(NORMAL) && !launcher.isInState(OVERVIEW)) {
@@ -82,18 +82,35 @@ public class ItemLongClickListener {
     }
 
 
-    private static void showSelectionActions(Launcher launcher) {
+    private static void showSelectionActions(Launcher launcher, View pressed) {
         WorkspaceSelectionManager selectionManager = launcher.getActivityComponent()
                 .getWorkspaceSelectionManager();
+        // A long press on an item that is not selected yet selects it first, so the press
+        // always acts on something instead of silently doing nothing.
+        if (!pressed.isSelected()) {
+            selectionManager.updateItemSelection(pressed,
+                    WorkspaceSelectionManager.ItemSelectionType.TOGGLE_SINGLE);
+        }
         java.util.List<View> selected = new java.util.ArrayList<>(
                 selectionManager.getSelectedViews());
         if (selected.isEmpty()) {
             return;
         }
+        // Keep a stable reading order (screen, row, column) so the first item is top-left.
+        selected.sort(java.util.Comparator
+                .comparingInt((View view) -> view.getTag() instanceof ItemInfo info
+                        ? info.screenId : 0)
+                .thenComparingInt(view -> view.getTag() instanceof ItemInfo info
+                        ? info.cellY : 0)
+                .thenComparingInt(view -> view.getTag() instanceof ItemInfo info
+                        ? info.cellX : 0));
 
         boolean canCreateFolder = selected.size() >= 2;
         for (View view : selected) {
-            if (!(view.getTag() instanceof WorkspaceItemInfo)) {
+            // Only loose workspace/hotseat shortcuts can be merged; items already inside a folder
+            // (container >= 0) are excluded.
+            if (!(view.getTag() instanceof WorkspaceItemInfo item)
+                    || item.container >= 0) {
                 canCreateFolder = false;
                 break;
             }

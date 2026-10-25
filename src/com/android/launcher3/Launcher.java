@@ -1067,6 +1067,10 @@ public class Launcher extends StatefulActivity<LauncherState>
     @Override
     public void onStateSetEnd(LauncherState state) {
         super.onStateSetEnd(state);
+        if (state != EDIT_MODE) {
+            // Never keep a stale multi-selection once edit mode is left.
+            getActivityComponent().getWorkspaceSelectionManager().clearSelection();
+        }
         getAppWidgetHolder().setStateIsNormal(state == LauncherState.NORMAL);
         getWorkspace().setClipChildren(!state.hasFlag(FLAG_MULTI_PAGE));
 
