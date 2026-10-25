@@ -20,6 +20,11 @@ Base: packages_apps_Launcher3 (LineageOS/AOSP). Não foi compilado (sem ambiente
 - Causa de "pasta grande continua pequena": FolderGridOrganizer.calculateGridSize encolhia a grade ao nº de itens mesmo expandida. Agora, expandida usa sempre colunas x linhas configuradas.
 - FolderPagedView.arrangeChildren: colunas/linhas limitadas ao que cabe na tela (largura do bounding box, altura máxima do conteúdo); mínimo 2.
 
+## Fase 5
+- AppsSearchContainerLayout: RenderEffect de blur criado uma vez (antes a cada frame); animador de largura cancelado em onDetachedFromWindow.
+- bg_all_apps_searchbox.xml: raio 100dp (pílula) para casar com o recorte do blur (h/2).
+- Observação (não alterado): KeyboardInsetAnimationCallback usa -ime.bottom no arrasto manual, sem descontar a barra de navegação (diferente de onApplyWindowInsets da busca); callback é compartilhado com Folder e WorkUtilityView.
+
 ## Pendente
 - Formas expressivas (cookie/squircle) nos ícones e nas pastas (PreviewBackground, FolderIcon).
 - Springs/animações expressivas em FolderAnimationManager e AllAppsTransitionController.

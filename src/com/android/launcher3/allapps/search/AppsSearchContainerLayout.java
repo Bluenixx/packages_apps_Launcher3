@@ -80,6 +80,7 @@ public class AppsSearchContainerLayout extends ExtendedEditText
     private final android.graphics.RenderNode mBlurNode =
             new android.graphics.RenderNode("searchBarBackdropBlur");
     private final android.graphics.Path mClipPath = new android.graphics.Path();
+    private float mBlurRadiusPx = -1f;
     private final int[] mBarLoc = new int[2];
     private final int[] mListLoc = new int[2];
     private androidx.recyclerview.widget.RecyclerView mObservedList;
@@ -147,6 +148,10 @@ public class AppsSearchContainerLayout extends ExtendedEditText
         mAppsView.getAppsStore().removeUpdateListener(this);
         android.view.CrossWindowBlurListeners.getInstance().removeListener(mBlurListener);
         onBlurEnabledChanged(false);
+        if (mBluenixxWidthAnimator != null) {
+            mBluenixxWidthAnimator.cancel();
+            mBluenixxWidthAnimator = null;
+        }
         if (mObservedList != null) {
             mObservedList.removeOnScrollListener(mScrollListener);
             mObservedList = null;
@@ -230,16 +235,22 @@ public class AppsSearchContainerLayout extends ExtendedEditText
         list.getLocationInWindow(mListLoc);
         final int w = getWidth();
         final int h = getHeight();
-        final float radius = getResources()
-                .getDimensionPixelSize(R.dimen.all_apps_search_bar_blur_radius);
+        boolean effectNeeded = mBlurRadiusPx < 0f;
+        if (effectNeeded) {
+            mBlurRadiusPx = getResources()
+                    .getDimensionPixelSize(R.dimen.all_apps_search_bar_blur_radius);
+        }
 
         mBlurNode.setPosition(0, 0, w, h);
         android.graphics.RecordingCanvas rc = mBlurNode.beginRecording(w, h);
         rc.translate(mListLoc[0] - mBarLoc[0], mListLoc[1] - mBarLoc[1]);
         list.draw(rc);
         mBlurNode.endRecording();
-        mBlurNode.setRenderEffect(android.graphics.RenderEffect.createBlurEffect(
-                radius, radius, android.graphics.Shader.TileMode.CLAMP));
+        if (effectNeeded) {
+            // The blur effect is constant, so create it once instead of on every frame.
+            mBlurNode.setRenderEffect(android.graphics.RenderEffect.createBlurEffect(
+                    mBlurRadiusPx, mBlurRadiusPx, android.graphics.Shader.TileMode.CLAMP));
+        }
 
         int base = com.android.launcher3.util.Themes.getAttrColor(
                 getContext(), R.attr.allappsHeaderProtectionColor);
