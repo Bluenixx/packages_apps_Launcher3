@@ -1898,9 +1898,18 @@ public class Launcher extends StatefulActivity<LauncherState>
         return false;
     }
 
+    private boolean mShiftPressed = false;
+
+    /** Whether a Shift key is currently held (used for range selection in edit mode). */
+    public boolean isShiftPressed() {
+        return mShiftPressed;
+    }
+
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
         TestLogging.recordKeyEvent(TestProtocol.SEQUENCE_MAIN, "Key event", event);
+        // Track Shift so a click in edit mode can extend the selection as a range.
+        mShiftPressed = event.getAction() != KeyEvent.ACTION_UP && event.isShiftPressed();
         return (event.getKeyCode() == KeyEvent.KEYCODE_HOME) || tryHandleEscapeKey(event)
                     || super.dispatchKeyEvent(event);
     }

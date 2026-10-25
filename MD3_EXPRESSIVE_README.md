@@ -30,6 +30,10 @@ Base: packages_apps_Launcher3 (LineageOS/AOSP). Não foi compilado (sem ambiente
 - Launcher.onStateSetEnd: limpa a multisseleção ao sair de EDIT_MODE.
 - Observação: ItemSelectionType.RANGE (fase 1) ainda não é acionado por nenhum gesto; falta ligar shift+clique/teclado em ItemClickHandler.
 
+## Fase 7
+- Launcher.dispatchKeyEvent acompanha Shift (isShiftPressed); ItemClickHandler usa ItemSelectionType.RANGE com Shift+clique em EDIT_MODE (antes só TOGGLE_SINGLE).
+- Springs expressivos de pasta (FolderSpringAnimatorSet) e a lista completa de formas (ShapesProvider, incl. Flower/Soft burst) JÁ EXISTEM, mas só ativam com as flags aconfig `enable_launcher_icon_shapes` e `enable_expressive_folder_expansion`. NÃO foram forçadas no código: `enable_launcher_icon_shapes` muda DatabaseHelper.SCHEMA_VERSION (34 vs 32). Ative via release config / valores de flag do build.
+
 ## Pendente
 - Formas expressivas (cookie/squircle) nos ícones e nas pastas (PreviewBackground, FolderIcon).
 - Springs/animações expressivas em FolderAnimationManager e AllAppsTransitionController.

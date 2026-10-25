@@ -105,7 +105,9 @@ public class ItemClickHandler {
                 && (v instanceof BubbleTextView || v instanceof FolderIcon
                 || v instanceof AppPairIcon)) {
             launcher.getActivityComponent().getWorkspaceSelectionManager().updateItemSelection(
-                    v, com.android.launcher3.WorkspaceSelectionManager.ItemSelectionType.TOGGLE_SINGLE);
+                    v, launcher.isShiftPressed()
+                            ? com.android.launcher3.WorkspaceSelectionManager.ItemSelectionType.RANGE
+                            : com.android.launcher3.WorkspaceSelectionManager.ItemSelectionType.TOGGLE_SINGLE);
             return;
         }
 
