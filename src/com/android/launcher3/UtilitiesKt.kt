@@ -170,6 +170,12 @@ object UtilitiesKt {
      */
     @JvmStatic fun ItemInfo.isPersistedModelItem() = id > ItemInfo.NO_ID && (id ushr 24) == 0
 
+    // Reused across draws to avoid allocating Paint objects inside onDraw.
+    private val selectionFillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL }
+    private val selectionStrokePaint =
+        Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE }
+    private val selectionRect = RectF()
+
     /**
      * Draws a highlight around a workspace item view to indicate selection. This includes a
      * semi-transparent filled rounded rectangle and a more opaque outline.
@@ -179,25 +185,19 @@ object UtilitiesKt {
      */
     @JvmStatic
     fun drawWorkspaceItemSelectionHighlight(canvas: Canvas, view: View) {
-        val primaryFixedColor = view.context.getColor(R.color.materialColorPrimaryFixed)
+        val density = view.resources.displayMetrics.density
+        val container = view.context.getColor(R.color.materialColorSecondaryContainer)
+        val outline = view.context.getColor(R.color.materialColorPrimaryFixed)
+        // MD3 Expressive: large rounded container, radius in dp so it scales with density.
+        val radius = 20f * density
 
-        val backgroundPaint =
-            Paint().apply {
-                color = ColorUtils.setAlphaComponent(primaryFixedColor, (255 * 0.35f).toInt())
-                style = Paint.Style.FILL
-                isAntiAlias = true
-            }
+        selectionFillPaint.color = ColorUtils.setAlphaComponent(container, (255 * 0.8f).toInt())
+        selectionStrokePaint.color = outline
+        selectionStrokePaint.strokeWidth = 2f * density
 
-        val backgroundRect = RectF(0f, 0f, view.width.toFloat(), view.height.toFloat())
-        canvas.drawRoundRect(backgroundRect, 20f, 20f, backgroundPaint)
-
-        val outlinePaint =
-            Paint().apply {
-                color = primaryFixedColor
-                style = Paint.Style.STROKE
-                strokeWidth = 2f
-                isAntiAlias = true
-            }
-        canvas.drawRoundRect(backgroundRect, 20f, 20f, outlinePaint)
+        selectionRect.set(0f, 0f, view.width.toFloat(), view.height.toFloat())
+        canvas.drawRoundRect(selectionRect, radius, radius, selectionFillPaint)
+        selectionRect.inset(density, density)
+        canvas.drawRoundRect(selectionRect, radius, radius, selectionStrokePaint)
     }
 }

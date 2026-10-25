@@ -112,10 +112,11 @@ public class FolderAnimationManager implements FolderAnimationCreator {
         mDuration = res.getInteger(R.integer.config_materialFolderExpandDuration);
         mDelay = res.getInteger(R.integer.config_folderDelay);
 
+        // MD3 Expressive: emphasized easing for folder expand/collapse.
         mFolderOpenInterpolator = AnimationUtils.loadInterpolator(mContext,
-                R.interpolator.standard_interpolator);
+                R.interpolator.emphasized_decelerate);
         mFolderCloseInterpolator = AnimationUtils.loadInterpolator(mContext,
-                R.interpolator.standard_interpolator);
+                R.interpolator.emphasized_accelerate);
         mLargeFolderPreviewItemOpenInterpolator = AnimationUtils.loadInterpolator(mContext,
                 R.interpolator.large_folder_preview_item_open_interpolator);
         mLargeFolderPreviewItemCloseInterpolator = AnimationUtils.loadInterpolator(mContext,

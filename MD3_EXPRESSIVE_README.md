@@ -7,6 +7,10 @@ Base: packages_apps_Launcher3 (LineageOS/AOSP). Não foi compilado (sem ambiente
 - Busca da gaveta: sem stroke, raio 28dp, altura 56dp, cor SurfaceContainerHigh, texto 16sp.
 - Pastas: raio 28dp via `folder_bg_round_rect_radius` (round_rect_folder.xml).
 
+## Fase 2
+- Realce da multisseleção (UtilitiesKt.kt): Paints reutilizados (antes alocava em onDraw), raio em dp, cor SecondaryContainer.
+- Pastas: interpolators emphasized_decelerate/accelerate e duração 300ms.
+
 ## Pendente
 - Formas expressivas (cookie/squircle) nos ícones e nas pastas (PreviewBackground, FolderIcon).
 - Springs/animações expressivas em FolderAnimationManager e AllAppsTransitionController.
