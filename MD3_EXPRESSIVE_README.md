@@ -31,8 +31,12 @@ Base: packages_apps_Launcher3 (LineageOS/AOSP). Não foi compilado (sem ambiente
 - Observação: ItemSelectionType.RANGE (fase 1) ainda não é acionado por nenhum gesto; falta ligar shift+clique/teclado em ItemClickHandler.
 
 ## Fase 7
-- Launcher.dispatchKeyEvent acompanha Shift (isShiftPressed); ItemClickHandler usa ItemSelectionType.RANGE com Shift+clique em EDIT_MODE (antes só TOGGLE_SINGLE).
+- (Revertido na fase 8: Shift+clique não faz sentido em celular.)
 - Springs expressivos de pasta (FolderSpringAnimatorSet) e a lista completa de formas (ShapesProvider, incl. Flower/Soft burst) JÁ EXISTEM, mas só ativam com as flags aconfig `enable_launcher_icon_shapes` e `enable_expressive_folder_expansion`. NÃO foram forçadas no código: `enable_launcher_icon_shapes` muda DatabaseHelper.SCHEMA_VERSION (34 vs 32). Ative via release config / valores de flag do build.
+
+## Fase 8
+- Removido o rastreamento de Shift (Launcher.java / ItemClickHandler.java).
+- Seleção em intervalo por toque: em EDIT_MODE, com algo já selecionado, o toque longo em outro item oferece "Selecionar até aqui" (ItemSelectionType.RANGE a partir do último item tocado). Strings em/pt-BR: select_up_to_here.
 
 ## Pendente
 - Formas expressivas (cookie/squircle) nos ícones e nas pastas (PreviewBackground, FolderIcon).

@@ -87,7 +87,11 @@ public class ItemLongClickListener {
                 .getWorkspaceSelectionManager();
         // A long press on an item that is not selected yet selects it first, so the press
         // always acts on something instead of silently doing nothing.
-        if (!pressed.isSelected()) {
+        // If something is already selected, offer "select up to here" (range from the last
+        // tapped item) instead of silently adding the pressed item.
+        final boolean offerRange = !pressed.isSelected()
+                && !selectionManager.getSelectedViews().isEmpty();
+        if (!pressed.isSelected() && !offerRange) {
             selectionManager.updateItemSelection(pressed,
                     WorkspaceSelectionManager.ItemSelectionType.TOGGLE_SINGLE);
         }
@@ -116,6 +120,10 @@ public class ItemLongClickListener {
             }
         }
         java.util.List<String> actions = new java.util.ArrayList<>();
+        if (offerRange) {
+            actions.add(launcher.getString(
+                    com.android.launcher3.R.string.select_up_to_here));
+        }
         actions.add(launcher.getString(com.android.launcher3.R.string.remove_drop_target_label));
         if (canCreateFolder) {
             actions.add(launcher.getString(com.android.launcher3.R.string.create_new_folder_button_text));
@@ -123,11 +131,15 @@ public class ItemLongClickListener {
         actions.add(launcher.getString(android.R.string.cancel));
 
         final boolean allowFolder = canCreateFolder;
+        final int base = offerRange ? 1 : 0;
         new AlertDialog.Builder(launcher)
                 .setTitle(launcher.getString(com.android.launcher3.R.string.edit_home_screen)
                         + " (" + selected.size() + ")")
                 .setItems(actions.toArray(new String[0]), (dialog, which) -> {
-                    if (which == 0) {
+                    if (offerRange && which == 0) {
+                        selectionManager.updateItemSelection(pressed,
+                                WorkspaceSelectionManager.ItemSelectionType.RANGE);
+                    } else if (which == base) {
                         for (View itemView : selected) {
                             if (itemView.getTag() instanceof ItemInfo itemInfo) {
                                 launcher.removeItem(itemView, itemInfo, true);
@@ -135,7 +147,7 @@ public class ItemLongClickListener {
                         }
                         selectionManager.clearSelection();
                         launcher.getStateManager().goToState(LauncherState.NORMAL);
-                    } else if (allowFolder && which == 1) {
+                    } else if (allowFolder && which == base + 1) {
                         createFolderFromSelection(launcher, selected, selectionManager);
                     }
                 })
