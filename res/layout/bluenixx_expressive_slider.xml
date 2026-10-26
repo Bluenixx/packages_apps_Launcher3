@@ -41,8 +41,8 @@
             android:paddingEnd="0dp"
             android:thumbOffset="0dp"
             android:splitTrack="true"
-            android:minHeight="28dp"
-            android:maxHeight="28dp"
+            android:minHeight="16dp"
+            android:maxHeight="16dp"
             android:progressDrawable="@drawable/bluenixx_slider_track"
             android:thumb="@drawable/bluenixx_slider_thumb"
             android:thumbTint="@null"
@@ -57,6 +57,6 @@
             android:minWidth="48dp"
             android:gravity="end"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textColor="?android:attr/colorAccent" />
+            android:textColor="@color/materialColorPrimary" />
     </LinearLayout>
 </LinearLayout>

@@ -49,3 +49,12 @@ Base: packages_apps_Launcher3 (LineageOS/AOSP). Não foi compilado (sem ambiente
 - Springs/animações expressivas em FolderAnimationManager e AllAppsTransitionController.
 - Pastas grandes: paginação/scroll em FolderPagedView, revisar clipping em FolderAnimationManager.
 - Tipografia e cores dinâmicas em todo res/values*/styles.xml.
+
+## Fase 10 (redesign visual, somente recursos XML)
+Não compilado (sem AOSP). Valide com `m Launcher3QuickStep` e confira no aparelho.
+- Configurações: linhas viram tiles tonais MD3 (raio 20dp, SurfaceContainer) via `layout/bluenixx_preference_tile.xml`, aplicado em `values-v31/styles.xml` (PreferenceStyle, PreferenceScreenStyle, SwitchPreferenceStyle). Se algum Preference quebrar, remova o item `android:layout` do estilo correspondente.
+- Slider (`bluenixx_expressive_slider`): trilha tonal 16dp (SecondaryContainer/Primary) e handle em pílula de 4dp, com tokens materialColor em vez de colorAccent.
+- Gaveta: aba selecionada em PrimaryContainer, pílula completa (`all_apps_header_pill_corner_radius` 100dp); texto das abas deixou de ser branco/#1F1F1F fixo (ilegível no modo escuro) e usa OnPrimaryContainer / OnSurfaceVariant.
+- Letra da barra de rolagem rápida: bolha em formato de cookie de 8 lobos (vector gerado de curva polar) em `bg_letter_list_text.xml`.
+- Menus de toque longo: `popup_smaller_radius` 4dp -> 10dp; `default_dialog_corner_radius` 26dp -> 28dp (afeta também diálogos e bottom sheets).
+- Não alterado: formas dos ícones (continuam atrás das flags aconfig da fase 7), pacote de ícones (IconPackManager/SettingsActivity), transições da gaveta (AllAppsTransitionController).

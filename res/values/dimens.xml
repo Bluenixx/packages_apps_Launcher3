@@ -127,7 +127,7 @@
     <dimen name="all_apps_empty_search_message_top_offset">40dp</dimen>
     <dimen name="all_apps_search_top_row_extra_height">4dp</dimen>
     <dimen name="all_apps_header_pill_height">48dp</dimen>
-    <dimen name="all_apps_header_pill_corner_radius">12dp</dimen>
+    <dimen name="all_apps_header_pill_corner_radius">100dp</dimen>
     <dimen name="all_apps_header_tab_height">48dp</dimen>
     <dimen name="all_apps_tabs_indicator_height">2dp</dimen>
     <dimen name="all_apps_header_top_margin">48dp</dimen>
@@ -345,7 +345,7 @@
     <dimen name="popup_blur_radius">20dp</dimen>
     <dimen name="popup_margin">2dp</dimen>
     <dimen name="popup_single_item_radius">100dp</dimen>
-    <dimen name="popup_smaller_radius">4dp</dimen>
+    <dimen name="popup_smaller_radius">10dp</dimen>
     <dimen name="deep_shortcut_drawable_padding">16dp</dimen>
     <dimen name="popup_padding_start">10dp</dimen>
     <dimen name="popup_padding_end">14dp</dimen>
@@ -413,7 +413,7 @@
     <dimen name="developer_options_filter_margins">10dp</dimen>
 
     <!-- Theming related -->
-    <dimen name="default_dialog_corner_radius">26dp</dimen>
+    <dimen name="default_dialog_corner_radius">28dp</dimen>
     <dimen name="dialogCornerRadius">@dimen/default_dialog_corner_radius</dimen>
 
     <!-- Taskbar related (placeholders to compile in Launcher3 without Quickstep) -->
