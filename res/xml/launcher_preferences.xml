@@ -139,6 +139,18 @@
             launcher:seekBarIncrement="5"
             launcher:showSeekBarValue="true" />
 
+        <Preference
+            android:key="pref_drawer_background_color_light"
+            android:title="@string/drawer_background_color_light_title"
+            android:summary="@string/drawer_background_color_summary"
+            android:persistent="false" />
+
+        <Preference
+            android:key="pref_drawer_background_color_dark"
+            android:title="@string/drawer_background_color_dark_title"
+            android:summary="@string/drawer_background_color_summary"
+            android:persistent="false" />
+
         <androidx.preference.PreferenceScreen
             android:key="pref_suggestions"
             android:title="@string/pref_suggestions_title"

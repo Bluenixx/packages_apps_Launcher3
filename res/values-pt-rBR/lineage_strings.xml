@@ -50,6 +50,14 @@
     <string name="home_icon_scale">Tamanho dos ícones na tela inicial</string>
     <string name="launcher_blur_enabled">Desfoque do launcher</string>
     <string name="launcher_blur_amount">Intensidade do desfoque</string>
+    <string name="drawer_background_color_light_title">Fundo da gaveta de apps (tema claro)</string>
+    <string name="drawer_background_color_dark_title">Fundo da gaveta de apps (tema escuro)</string>
+    <string name="drawer_background_color_summary">Usado quando o desfoque do launcher está desativado</string>
+    <string name="drawer_background_color_summary_default">Usando a cor padrão do sistema</string>
+    <string name="drawer_background_color_summary_selected">Cor selecionada: %1$s</string>
+    <string name="drawer_background_color_custom">Cor personalizada</string>
+    <string name="drawer_background_color_custom_summary">Informe uma cor no formato #RRGGBB ou #AARRGGBB.</string>
+    <string name="drawer_background_color_invalid">Cor inválida. Use #RRGGBB ou #AARRGGBB.</string>
     <string name="icon_pack">Pacote de ícones</string>
     <string name="icon_pack_default">Padrão do sistema</string>
     <string name="big_folder_settings">Tamanho da pasta</string>

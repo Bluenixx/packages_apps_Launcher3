@@ -186,6 +186,12 @@ public class ActivityAllAppsContainerView<T extends Context & ActivityContext>
             });
         }
     };
+    private final LauncherPrefChangeListener mDrawerBackgroundColorListener = key -> {
+        if (LauncherPrefs.DRAWER_BACKGROUND_COLOR_LIGHT.getSharedPrefKey().equals(key)
+                || LauncherPrefs.DRAWER_BACKGROUND_COLOR_DARK.getSharedPrefKey().equals(key)) {
+            postInvalidateOnAnimation();
+        }
+    };
 
     private SearchRecyclerView mSearchRecyclerView;
     protected SearchAdapterProvider<?> mMainAdapterProvider;
@@ -428,6 +434,9 @@ public class ActivityAllAppsContainerView<T extends Context & ActivityContext>
         }
         LauncherPrefs.get(getContext()).addListener(
                 mSearchPositionListener, LauncherPrefs.DRAWER_SEARCH_POSITION);
+        LauncherPrefs.get(getContext()).addListener(mDrawerBackgroundColorListener,
+                LauncherPrefs.DRAWER_BACKGROUND_COLOR_LIGHT,
+                LauncherPrefs.DRAWER_BACKGROUND_COLOR_DARK);
         mActivityContext.addOnDeviceProfileChangeListener(this);
     }
 
@@ -437,6 +446,9 @@ public class ActivityAllAppsContainerView<T extends Context & ActivityContext>
         mActivityContext.removeOnDeviceProfileChangeListener(this);
         LauncherPrefs.get(getContext()).removeListener(
                 mSearchPositionListener, LauncherPrefs.DRAWER_SEARCH_POSITION);
+        LauncherPrefs.get(getContext()).removeListener(mDrawerBackgroundColorListener,
+                LauncherPrefs.DRAWER_BACKGROUND_COLOR_LIGHT,
+                LauncherPrefs.DRAWER_BACKGROUND_COLOR_DARK);
     }
 
     public SearchUiManager getSearchUiManager() {
@@ -933,9 +945,21 @@ public class ActivityAllAppsContainerView<T extends Context & ActivityContext>
     }
 
     int getBackgroundColor() {
-        return isBackgroundBlurEnabled()
-                ? mBottomSheetBackgroundColorOverBlur
-                : mBottomSheetBackgroundColorBlurFallback;
+        if (isBackgroundBlurEnabled()) {
+            return mBottomSheetBackgroundColorOverBlur;
+        }
+        String customColor = LauncherPrefs.get(getContext()).get(
+                Utilities.isDarkTheme(getContext())
+                        ? LauncherPrefs.DRAWER_BACKGROUND_COLOR_DARK
+                        : LauncherPrefs.DRAWER_BACKGROUND_COLOR_LIGHT);
+        if (customColor != null && !customColor.isEmpty()) {
+            try {
+                return Color.parseColor(customColor);
+            } catch (IllegalArgumentException e) {
+                Log.w("LauncherAllApps", "Invalid app drawer background color: " + customColor, e);
+            }
+        }
+        return mBottomSheetBackgroundColorBlurFallback;
     }
 
     boolean isBackgroundBlurEnabled() {

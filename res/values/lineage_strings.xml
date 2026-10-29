@@ -81,6 +81,14 @@
     <string name="home_icon_scale">Icon size on home screen</string>
     <string name="launcher_blur_enabled">Launcher blur</string>
     <string name="launcher_blur_amount">Blur intensity</string>
+    <string name="drawer_background_color_light_title">App drawer background (light theme)</string>
+    <string name="drawer_background_color_dark_title">App drawer background (dark theme)</string>
+    <string name="drawer_background_color_summary">Used when launcher blur is disabled</string>
+    <string name="drawer_background_color_summary_default">Using the system default color</string>
+    <string name="drawer_background_color_summary_selected">Selected color: %1$s</string>
+    <string name="drawer_background_color_custom">Custom color</string>
+    <string name="drawer_background_color_custom_summary">Enter a color in #RRGGBB or #AARRGGBB format.</string>
+    <string name="drawer_background_color_invalid">Invalid color. Use #RRGGBB or #AARRGGBB.</string>
     <string name="icon_pack">Icon pack</string>
     <string name="icon_pack_default">System default</string>
     <string name="drawer_search_position_title">Search bar position</string>

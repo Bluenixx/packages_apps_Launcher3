@@ -27,6 +27,7 @@ import static com.android.launcher3.InvariantDeviceProfile.TYPE_TABLET;
 import static com.android.launcher3.util.Executors.MAIN_EXECUTOR;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.LauncherApps;
@@ -38,6 +39,8 @@ import android.provider.Settings;
 import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
+import android.text.InputType;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
@@ -59,6 +62,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.android.launcher3.BuildConfig;
 import com.android.launcher3.InvariantDeviceProfile;
 import com.android.launcher3.LauncherFiles;
+import com.android.launcher3.LauncherPrefs;
+import com.android.launcher3.Item;
 import com.android.launcher3.R;
 import com.android.launcher3.display.DisplayController;
 import com.android.launcher3.display.LauncherDisplayInfo;
@@ -295,6 +300,7 @@ public class SettingsActivity extends FragmentActivity
             getPreferenceManager().setSharedPreferencesName(LauncherFiles.SHARED_PREFERENCES_KEY);
             setPreferencesFromResource(R.xml.launcher_preferences, rootKey);
             installGestureBarSettingsBridge();
+            installDrawerBackgroundColorPreferences();
 
             PreferenceScreen screen = getPreferenceScreen();
             initGroup(screen);
@@ -318,6 +324,102 @@ public class SettingsActivity extends FragmentActivity
             if (getActivity() != null && !TextUtils.isEmpty(getPreferenceScreen().getTitle())) {
                 getActivity().setTitle(getPreferenceScreen().getTitle());
             }
+        }
+
+        private void installDrawerBackgroundColorPreferences() {
+            installDrawerColorPreference("pref_drawer_background_color_light",
+                    LauncherPrefs.DRAWER_BACKGROUND_COLOR_LIGHT);
+            installDrawerColorPreference("pref_drawer_background_color_dark",
+                    LauncherPrefs.DRAWER_BACKGROUND_COLOR_DARK);
+        }
+
+        private void installDrawerColorPreference(String key, Item colorItem) {
+            Preference preference = findPreference(key);
+            if (preference == null || getContext() == null) return;
+            String current = LauncherPrefs.get(getContext()).get(
+                    key.endsWith("_dark") ? LauncherPrefs.DRAWER_BACKGROUND_COLOR_DARK
+                            : LauncherPrefs.DRAWER_BACKGROUND_COLOR_LIGHT);
+            preference.setSummary(TextUtils.isEmpty(current)
+                    ? getString(R.string.drawer_background_color_summary_default)
+                    : getString(R.string.drawer_background_color_summary_selected, current));
+            preference.setOnPreferenceClickListener(pref -> {
+                showDrawerColorPicker(key, colorItem, pref);
+                return true;
+            });
+        }
+
+        private void showDrawerColorPicker(String key, Item colorItem,
+                Preference preference) {
+            if (getContext() == null) return;
+            final String current = LauncherPrefs.get(getContext()).get(
+                    key.endsWith("_dark") ? LauncherPrefs.DRAWER_BACKGROUND_COLOR_DARK
+                            : LauncherPrefs.DRAWER_BACKGROUND_COLOR_LIGHT);
+            final String[] colors = {
+                    "#FF101216", "#FF202124", "#FF30343B", "#FF424750",
+                    "#FFFFFFFF", "#FFF5F5F5", "#FFE3E3E3", "#FF000000",
+                    "#FF6750A4", "#FF006A6A", "#FF315DA8", "#FF8C4351",
+                    "#FF7D5260", "#FF386A20", "#FF7A5901", "#FF6D5E0F"
+            };
+            final String[] labels = {
+                    "Midnight", "Charcoal", "Graphite", "Slate",
+                    "White", "Light gray", "Silver", "Black",
+                    "Purple", "Teal", "Blue", "Rose",
+                    "Mauve", "Green", "Amber", "Olive"
+            };
+            int selected = -1;
+            for (int i = 0; i < colors.length; i++) {
+                if (colors[i].equalsIgnoreCase(current)) selected = i;
+            }
+            final int[] selectedColor = {selected};
+            AlertDialog dialog = new AlertDialog.Builder(requireContext())
+                    .setTitle(preference.getTitle())
+                    .setSingleChoiceItems(labels, selected, (d, which) -> selectedColor[0] = which)
+                    .setPositiveButton(android.R.string.ok, (d, which) -> {
+                        if (selectedColor[0] >= 0 && getContext() != null) {
+                            saveDrawerColor(colorItem, colors[selectedColor[0]], preference);
+                        }
+                    })
+                    .setNeutralButton(R.string.drawer_background_color_custom, (d, which) ->
+                            showCustomDrawerColor(colorItem, preference, current))
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .create();
+            dialog.show();
+        }
+
+        private void showCustomDrawerColor(Item colorItem, Preference preference,
+                String current) {
+            EditText input = new EditText(requireContext());
+            input.setSingleLine(true);
+            input.setInputType(InputType.TYPE_CLASS_TEXT);
+            input.setHint("#RRGGBB or #AARRGGBB");
+            input.setText(current);
+            new AlertDialog.Builder(requireContext())
+                    .setTitle(R.string.drawer_background_color_custom)
+                    .setMessage(R.string.drawer_background_color_custom_summary)
+                    .setView(input)
+                    .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                        String value = input.getText().toString().trim();
+                        try {
+                            int color = Color.parseColor(value);
+                            String normalized = String.format(java.util.Locale.ROOT, "#%08X", color);
+                            saveDrawerColor(colorItem, normalized, preference);
+                        } catch (IllegalArgumentException e) {
+                            new AlertDialog.Builder(requireContext())
+                                    .setMessage(R.string.drawer_background_color_invalid)
+                                    .setPositiveButton(android.R.string.ok, null)
+                                    .show();
+                        }
+                    })
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .show();
+        }
+
+        private void saveDrawerColor(Item colorItem, String color,
+                Preference preference) {
+            if (getContext() == null) return;
+            LauncherPrefs.get(getContext()).put(colorItem, color);
+            preference.setSummary(getString(R.string.drawer_background_color_summary_selected,
+                    color));
         }
 
         private boolean isKeyInPreferenceGroup(String targetKey, PreferenceGroup parent) {
