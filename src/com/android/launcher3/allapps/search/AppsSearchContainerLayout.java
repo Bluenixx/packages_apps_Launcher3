@@ -33,6 +33,19 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup.MarginLayoutParams;
 import android.view.WindowInsets;
+import android.view.MotionEvent;
+import android.widget.PopupMenu;
+import android.app.AlertDialog;
+import android.widget.EditText;
+import android.widget.Toast;
+import android.content.pm.PackageManager;
+import android.text.TextUtils;
+import com.android.launcher3.model.data.AppInfo;
+import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import org.json.JSONArray;
+import org.json.JSONException;
 
 import com.android.launcher3.DeviceProfile;
 import com.android.launcher3.ExtendedEditText;
@@ -77,6 +90,8 @@ public class AppsSearchContainerLayout extends ExtendedEditText
     private android.graphics.drawable.Drawable mSearchIcon;
     private android.graphics.drawable.Drawable mBaseBackground;
     private boolean mBlurEnabled;
+    private final Set<AppInfo> mSelectedApps = new LinkedHashSet<>();
+    private static final String DRAWER_PREFS = "bluenixx_drawer_folders";
     private final android.graphics.RenderNode mBlurNode =
             new android.graphics.RenderNode("searchBarBackdropBlur");
     private final android.graphics.Path mClipPath = new android.graphics.Path();
@@ -291,6 +306,166 @@ public class AppsSearchContainerLayout extends ExtendedEditText
         super.onDraw(canvas);
         canvas.restoreToCount(save);
         drawSearchIcon(canvas);
+        drawOptionsIcon(canvas);
+    }
+
+    /** Draws the drawer actions affordance at the trailing edge of the search field. */
+    private void drawOptionsIcon(android.graphics.Canvas canvas) {
+        android.graphics.Paint paint = new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG);
+        paint.setColor(getCurrentTextColor());
+        paint.setStrokeWidth(getResources().getDisplayMetrics().density * 2f);
+        paint.setStrokeCap(android.graphics.Paint.Cap.ROUND);
+        float cx = getLayoutDirection() == View.LAYOUT_DIRECTION_RTL
+                ? getPaddingStart() / 2f : getWidth() - getPaddingEnd() / 2f;
+        float cy = getHeight() / 2f;
+        float radius = 1.5f * getResources().getDisplayMetrics().density;
+        for (int i = -1; i <= 1; i++) {
+            canvas.drawCircle(cx, cy + i * 6f * getResources().getDisplayMetrics().density,
+                    radius, paint);
+        }
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        if (event.getAction() == MotionEvent.ACTION_UP) {
+            float edge = 48f * getResources().getDisplayMetrics().density;
+            boolean onOptions = getLayoutDirection() == View.LAYOUT_DIRECTION_RTL
+                    ? event.getX() <= edge : event.getX() >= getWidth() - edge;
+            if (onOptions) {
+                showDrawerOptions();
+                return true;
+            }
+        }
+        return super.onTouchEvent(event);
+    }
+
+    private void showDrawerOptions() {
+        PopupMenu menu = new PopupMenu(getContext(), this);
+        menu.getMenu().add(0, 1, 0, R.string.drawer_edit_apps);
+        menu.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == 1) {
+                showAppSelectionDialog();
+                return true;
+            }
+            return false;
+        });
+        menu.show();
+    }
+
+    private void showAppSelectionDialog() {
+        AppInfo[] apps = mAppsView.getAppsStore().getApps();
+        java.util.ArrayList<AppInfo> selectable = new java.util.ArrayList<>();
+        java.util.ArrayList<CharSequence> labels = new java.util.ArrayList<>();
+        for (AppInfo app : apps) {
+            if (app.componentName != null && app.user != null) {
+                selectable.add(app);
+                labels.add(app.title == null ? app.componentName.getPackageName() : app.title);
+            }
+        }
+        if (selectable.isEmpty()) {
+            Toast.makeText(getContext(), R.string.drawer_no_apps, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        boolean[] checked = new boolean[selectable.size()];
+        new AlertDialog.Builder(getContext())
+                .setTitle(R.string.drawer_select_apps)
+                .setMultiChoiceItems(labels.toArray(new CharSequence[0]), checked,
+                        (dialog, which, isChecked) -> checked[which] = isChecked)
+                .setNegativeButton(android.R.string.cancel, null)
+                .setNeutralButton(R.string.drawer_create_folder, (dialog, which) -> {
+                    java.util.ArrayList<AppInfo> selected = selectedApps(selectable, checked);
+                    if (selected.size() < 2) {
+                        Toast.makeText(getContext(), R.string.drawer_folder_needs_two_apps,
+                                Toast.LENGTH_LONG).show();
+                    } else {
+                        promptFolderName(selected);
+                    }
+                })
+                .setPositiveButton(R.string.drawer_uninstall, (dialog, which) -> {
+                    java.util.ArrayList<AppInfo> selected = selectedApps(selectable, checked);
+                    if (selected.isEmpty()) {
+                        Toast.makeText(getContext(), R.string.drawer_select_at_least_one,
+                                Toast.LENGTH_SHORT).show();
+                    } else {
+                        confirmUninstall(selected);
+                    }
+                }).show();
+    }
+
+    private java.util.ArrayList<AppInfo> selectedApps(List<AppInfo> apps, boolean[] checked) {
+        java.util.ArrayList<AppInfo> selected = new java.util.ArrayList<>();
+        for (int i = 0; i < apps.size(); i++) if (checked[i]) selected.add(apps.get(i));
+        return selected;
+    }
+
+    private void confirmUninstall(java.util.ArrayList<AppInfo> selected) {
+        new AlertDialog.Builder(getContext())
+                .setTitle(R.string.drawer_uninstall)
+                .setMessage(getResources().getString(R.string.drawer_uninstall_confirm, selected.size()))
+                .setNegativeButton(android.R.string.cancel, null)
+                .setPositiveButton(R.string.drawer_uninstall, (dialog, which) -> {
+                    // Android requires a separate system confirmation for each package.
+                    for (AppInfo app : selected) {
+                        if (app.componentName == null) continue;
+                        Intent intent = new Intent(Intent.ACTION_DELETE,
+                                android.net.Uri.parse("package:" + app.componentName.getPackageName()));
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        try {
+                            getContext().startActivity(intent);
+                        } catch (android.content.ActivityNotFoundException e) {
+                            Toast.makeText(getContext(), R.string.drawer_uninstall_unavailable,
+                                    Toast.LENGTH_SHORT).show();
+                            break;
+                        }
+                    }
+                }).show();
+    }
+
+    private void promptFolderName(java.util.ArrayList<AppInfo> selected) {
+        EditText input = new EditText(getContext());
+        input.setSingleLine(true);
+        input.setHint(R.string.drawer_folder_name_hint);
+        int padding = (int) (24 * getResources().getDisplayMetrics().density);
+        input.setPadding(padding, padding / 2, padding, padding / 2);
+        new AlertDialog.Builder(getContext())
+                .setTitle(R.string.drawer_create_folder)
+                .setView(input)
+                .setNegativeButton(android.R.string.cancel, null)
+                .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                    String name = input.getText().toString().trim();
+                    if (TextUtils.isEmpty(name)) {
+                        Toast.makeText(getContext(), R.string.drawer_folder_name_required,
+                                Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    saveDrawerFolder(name, selected);
+                }).show();
+    }
+
+    /** Persists folder membership so it survives launcher restarts. */
+    private void saveDrawerFolder(String name, java.util.ArrayList<AppInfo> selected) {
+        android.content.SharedPreferences prefs = getContext().getSharedPreferences(
+                DRAWER_PREFS, Context.MODE_PRIVATE);
+        JSONArray folders;
+        try {
+            folders = new JSONArray(prefs.getString("folders", "[]"));
+        } catch (JSONException e) {
+            folders = new JSONArray();
+        }
+        JSONArray packages = new JSONArray();
+        for (AppInfo app : selected) {
+            if (app.componentName != null) packages.put(app.componentName.flattenToString());
+        }
+        org.json.JSONObject folder = new org.json.JSONObject();
+        try {
+            folder.put("name", name);
+            folder.put("apps", packages);
+            folders.put(folder);
+            prefs.edit().putString("folders", folders.toString()).apply();
+            Toast.makeText(getContext(), R.string.drawer_folder_saved, Toast.LENGTH_LONG).show();
+        } catch (JSONException e) {
+            Toast.makeText(getContext(), R.string.drawer_folder_save_failed, Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override

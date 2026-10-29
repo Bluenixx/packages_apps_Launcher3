@@ -718,4 +718,19 @@
     <string name="folder_creator_add" translatable="false">Add</string>
     <string name="folder_creator_cancel" translatable="false">Cancel</string>
 
+    <!-- Bluenixx app drawer editing -->
+    <string name="drawer_edit_apps">Editar aplicativos</string>
+    <string name="drawer_select_apps">Selecionar aplicativos</string>
+    <string name="drawer_uninstall">Desinstalar</string>
+    <string name="drawer_create_folder">Criar pasta</string>
+    <string name="drawer_no_apps">Nenhum aplicativo disponível para editar.</string>
+    <string name="drawer_folder_needs_two_apps">Selecione pelo menos dois aplicativos para criar uma pasta.</string>
+    <string name="drawer_select_at_least_one">Selecione pelo menos um aplicativo.</string>
+    <string name="drawer_uninstall_confirm">Deseja solicitar a desinstalação de %1$d aplicativo(s)? O Android pedirá confirmação para cada aplicativo.</string>
+    <string name="drawer_uninstall_unavailable">Não foi possível abrir o desinstalador do sistema.</string>
+    <string name="drawer_folder_name_hint">Nome da pasta</string>
+    <string name="drawer_folder_name_required">Digite um nome para a pasta.</string>
+    <string name="drawer_folder_saved">Pasta salva. A exibição e o gerenciamento de pastas na grade da gaveta ainda precisam ser integrados.</string>
+    <string name="drawer_folder_save_failed">Não foi possível salvar a pasta.</string>
+
 </resources>
