@@ -396,6 +396,27 @@ constructor(
             applyScale()
         }
 
+    /** Additional scale applied by RecentsView when rendering the stacked task overview. */
+    var recentsStackScale = 1f
+        set(value) {
+            field = value
+            applyScale()
+        }
+
+    /** Vertical offset for stacked Recents cards; kept separate from gesture translations. */
+    var recentsStackTranslationY = 0f
+        set(value) {
+            field = value
+            applyTranslationY()
+        }
+
+    /** Elevation contribution that keeps the focused card above its stack neighbors. */
+    var recentsStackElevation = 0f
+        set(value) {
+            field = value
+            translationZ = value
+        }
+
     private var dismissTranslationX = 0f
         set(value) {
             field = value
@@ -1777,6 +1798,7 @@ constructor(
             persistentScale *
                 dismissScale *
                 animateToIconScale *
+                recentsStackScale *
                 Utilities.mapRange(modalness, 1f, modalScale)
         scaleX = scale
         scaleY = scale
@@ -1798,6 +1820,7 @@ constructor(
         translationY =
             dismissTranslationY +
                 taskOffsetTranslationY +
+                recentsStackTranslationY +
                 taskResistanceTranslationY +
                 splitSelectTranslationY +
                 persistentTranslationY +
@@ -1851,6 +1874,9 @@ constructor(
         gridTranslationX = 0f
         gridTranslationY = 0f
         boxTranslationY = 0f
+        recentsStackTranslationY = 0f
+        recentsStackScale = 1f
+        recentsStackElevation = 0f
         taskContainers.forEach {
             it.snapshotView.translationX = 0f
             it.snapshotView.translationY = 0f
@@ -1877,7 +1903,7 @@ constructor(
             splitSelectTranslationY = 0f
         }
         dismissScale = 1f
-        translationZ = 0f
+        translationZ = recentsStackElevation
         setIconVisibleForGesture(true)
         settledProgressDismiss = 1f
         setColorTint(0f, 0)

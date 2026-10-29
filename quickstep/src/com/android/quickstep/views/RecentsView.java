@@ -568,6 +568,12 @@ public abstract class RecentsView<
     private final int mClampedScrollOffsetBound;
 
     private float mAdjacentPageHorizontalOffset = 0;
+
+    // Keep the carousel's existing paging/gesture model, but give adjacent tasks the
+    // vertically layered depth used by stacked recent-app switchers.
+    private static final float RECENTS_STACK_VERTICAL_OFFSET_DP = 18f;
+    private static final float RECENTS_STACK_SCALE_STEP = 0.035f;
+    private static final float RECENTS_STACK_MIN_SCALE = 0.84f;
     private float mDesktopCarouselDetachProgress = 0;
     protected float mTaskViewsSecondaryTranslation = 0;
     protected float mTaskViewsPrimarySplitTranslation = 0;
@@ -3888,6 +3894,20 @@ public abstract class RecentsView<
         float modalOffset = ACCELERATE_0_75.getInterpolation(mTaskModalness);
         int count = getChildCount();
         boolean showAsGrid = showAsGrid();
+        boolean useStackLayout = !showAsGrid && !isSplitSelectionActive()
+                && mTaskModalness == 0f && count > 1;
+        TaskView stackMidpointTask = getSelectedTaskView();
+        if (stackMidpointTask == null) {
+            stackMidpointTask = getTaskViewNearestToCenterOfScreen();
+        }
+        if (stackMidpointTask == null) {
+            stackMidpointTask = getRunningTaskView();
+        }
+        int stackMidpoint = useStackLayout && stackMidpointTask != null
+                ? indexOfChild(stackMidpointTask) : INVALID_PAGE;
+        useStackLayout &= stackMidpoint != INVALID_PAGE;
+        float stackOffsetPx = RECENTS_STACK_VERTICAL_OFFSET_DP
+                * getResources().getDisplayMetrics().density;
 
         TaskView runningTask = mRunningTaskViewId == INVALID_PAGE || !mRunningTaskTileHidden
                 ? null : getRunningTaskView();
@@ -3990,11 +4010,34 @@ public abstract class RecentsView<
                 redrawLiveTile();
             }
 
-            if (showAsGrid && child instanceof TaskView taskView) {
-                float totalTranslationY = getVerticalOffsetSize(taskView, modalOffset);
+            if (child instanceof TaskView taskView) {
                 FloatProperty<TaskView> translationPropertyY =
                         taskView.getSecondaryTaskOffsetTranslationProperty();
-                translationPropertyY.set(taskView, totalTranslationY);
+                if (showAsGrid) {
+                    translationPropertyY.set(taskView,
+                            getVerticalOffsetSize(taskView, modalOffset));
+                    taskView.setRecentsStackTranslationY(0f);
+                    taskView.setRecentsStackScale(1f);
+                    taskView.setRecentsStackElevation(0f);
+                } else if (useStackLayout) {
+                    int distance = Math.abs(i - stackMidpoint);
+                    // Keep the focused card at the front while revealing a small strip of
+                    // each neighboring card. Clamp depth so long task lists stay compact.
+                    int depth = Math.min(distance, 5);
+                    float stackTranslationY = (i - stackMidpoint) * stackOffsetPx;
+                    float stackScale = Math.max(RECENTS_STACK_MIN_SCALE,
+                            1f - depth * RECENTS_STACK_SCALE_STEP);
+                    translationPropertyY.set(taskView, 0f);
+                    taskView.setRecentsStackTranslationY(stackTranslationY);
+                    taskView.setRecentsStackScale(stackScale);
+                    taskView.setRecentsStackElevation((5 - depth) * getResources()
+                            .getDisplayMetrics().density * 1.5f);
+                } else {
+                    translationPropertyY.set(taskView, 0f);
+                    taskView.setRecentsStackTranslationY(0f);
+                    taskView.setRecentsStackScale(1f);
+                    taskView.setRecentsStackElevation(0f);
+                }
             }
         }
         updateCurveProperties();
