@@ -107,8 +107,13 @@ public class LauncherAnimationRunner extends RemoteAnimationRunnerCompat {
     @UiThread
     private void finishExistingAnimation() {
         if (mAnimationResult != null) {
-            mAnimationResult.finish();
+            // A new WindowManager transition supersedes the previous one. Finishing only the
+            // remote callback leaves the old AnimatorSet running against stale SurfaceControl
+            // leashes, so both animations can write transforms for the same frame. Cancel the
+            // previous animation before releasing its transition.
+            AnimationResult previousResult = mAnimationResult;
             mAnimationResult = null;
+            previousResult.cancel();
         }
     }
 
@@ -134,6 +139,7 @@ public class LauncherAnimationRunner extends RemoteAnimationRunnerCompat {
         private final Runnable mASyncFinishRunnable;
 
         private Runnable mOnCompleteCallback;
+        private AnimatorSet mAnimation;
         private boolean mFinished = false;
         private boolean mInitialized = false;
 
@@ -144,16 +150,30 @@ public class LauncherAnimationRunner extends RemoteAnimationRunnerCompat {
 
         @UiThread
         private void finish() {
-            if (!mFinished) {
-                mSyncFinishRunnable.run();
-                UI_HELPER_EXECUTOR.execute(() -> {
-                    mASyncFinishRunnable.run();
-                    if (mOnCompleteCallback != null) {
-                        MAIN_EXECUTOR.execute(mOnCompleteCallback);
-                    }
-                });
-                mFinished = true;
+            complete(false);
+        }
+
+        /** Cancels an animation whose surfaces are being replaced by a newer transition. */
+        @UiThread
+        private void cancel() {
+            complete(true);
+        }
+
+        private void complete(boolean cancelAnimation) {
+            if (mFinished) return;
+            // Mark finished before cancel(): Animator.cancel() synchronously dispatches
+            // onAnimationEnd(), which must not complete this result a second time.
+            mFinished = true;
+            if (cancelAnimation && mAnimation != null && mAnimation.isStarted()) {
+                mAnimation.cancel();
             }
+            mSyncFinishRunnable.run();
+            UI_HELPER_EXECUTOR.execute(() -> {
+                mASyncFinishRunnable.run();
+                if (mOnCompleteCallback != null) {
+                    MAIN_EXECUTOR.execute(mOnCompleteCallback);
+                }
+            });
         }
 
         @UiThread
@@ -177,13 +197,13 @@ public class LauncherAnimationRunner extends RemoteAnimationRunnerCompat {
             if (animation == null) {
                 finish();
             } else if (mFinished) {
-                // Animation callback was already finished, skip the animation.
-                animation.start();
-                animation.end();
+                // The transition was superseded before its animation was initialized. Do not
+                // start stale surface transactions after WindowManager has moved on.
                 if (mOnCompleteCallback != null) {
                     mOnCompleteCallback.run();
                 }
             } else {
+                mAnimation = animation;
                 // Start the animation
                 animation.addListener(new AnimatorListenerAdapter() {
                     @Override

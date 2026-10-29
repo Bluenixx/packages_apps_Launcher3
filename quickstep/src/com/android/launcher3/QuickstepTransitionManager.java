@@ -203,7 +203,11 @@ public class QuickstepTransitionManager implements OnDeviceProfileChangeListener
      */
     public static final int STATUS_BAR_TRANSITION_PRE_DELAY = 96;
 
-    public static final long APP_LAUNCH_DURATION = 500;
+    // A slightly shorter, strongly eased launch keeps rapid app-to-app transitions responsive
+    // without turning the icon-to-window morph into a hard cut.
+    public static final long APP_LAUNCH_DURATION = 440;
+    private static final Interpolator FLUID_APP_LAUNCH_INTERPOLATOR =
+            new PathInterpolator(0.16f, 1f, 0.3f, 1f);
 
     private static final long APP_LAUNCH_ALPHA_DURATION = 50;
     private static final long APP_LAUNCH_ALPHA_START_DELAY = 25;
@@ -219,7 +223,7 @@ public class QuickstepTransitionManager implements OnDeviceProfileChangeListener
 
     public static final int RECENTS_LAUNCH_DURATION = 336;
     private static final int LAUNCHER_RESUME_START_DELAY = 100;
-    private static final int CLOSING_TRANSITION_DURATION_MS = 250;
+    private static final int CLOSING_TRANSITION_DURATION_MS = 300;
     public static final int SPLIT_LAUNCH_DURATION = 370;
     public static final int SPLIT_DIVIDER_ANIM_DURATION = 100;
 
@@ -369,8 +373,7 @@ public class QuickstepTransitionManager implements OnDeviceProfileChangeListener
 
         mOpeningXInterpolator = AnimationUtils.loadInterpolator(
                 launcher, R.interpolator.app_open_x);
-        mOpeningInterpolator = AnimationUtils.loadInterpolator(
-                launcher, R.interpolator.emphasized_interpolator);
+        mOpeningInterpolator = FLUID_APP_LAUNCH_INTERPOLATOR;
         mLatencyTracker = LatencyTracker.getInstance(launcher);
 
         mMaxBlurRadius = res.getDimensionPixelSize(
