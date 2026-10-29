@@ -3,5 +3,31 @@
     <string name="bluenixx_category_home">Home screen</string>
     <string name="bluenixx_category_drawer">App drawer</string>
     <string name="bluenixx_category_icons">Icons</string>
+    <string name="bluenixx_category_navigation_bar">Gesture navigation bar</string>
+    <string name="gesture_bar_width_title">Bar width</string>
+    <string name="gesture_bar_width_summary">Adjust the gesture pill length.</string>
+    <string name="gesture_bar_thickness_title">Bar thickness</string>
+    <string name="gesture_bar_thickness_summary">Adjust the pill thickness.</string>
+    <string name="gesture_bar_height_title">Vertical position</string>
+    <string name="gesture_bar_height_summary">Raise the pill from the bottom edge.</string>
+    <string name="gesture_bar_color_title">Bar color</string>
+    <string name="gesture_bar_color_summary">Choose a color for the gesture pill.</string>
+    <string name="gesture_bar_opacity_title">Bar opacity</string>
+    <string name="gesture_bar_opacity_summary">Adjust the pill opacity.</string>
     <string name="bluenixx_category_advanced">Advanced</string>
+
+    <string-array name="gesture_bar_color_entries">
+        <item>White</item>
+        <item>Black</item>
+        <item>Blue</item>
+        <item>Pink</item>
+        <item>System purple</item>
+    </string-array>
+    <string-array name="gesture_bar_color_values">
+        <item>#FFFFFFFF</item>
+        <item>#FF000000</item>
+        <item>#FF4D9FFF</item>
+        <item>#FFFF70B7</item>
+        <item>#FFB7A1FF</item>
+    </string-array>
 </resources>

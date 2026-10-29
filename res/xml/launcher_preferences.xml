@@ -177,6 +177,70 @@
     </androidx.preference.PreferenceScreen>
 
     <androidx.preference.PreferenceScreen
+        android:key="bluenixx_category_navigation_bar"
+        android:persistent="false"
+        android:title="@string/bluenixx_category_navigation_bar">
+
+        <SeekBarPreference
+            android:layout="@layout/bluenixx_expressive_slider"
+            android:key="pref_gesture_bar_width"
+            android:title="@string/gesture_bar_width_title"
+            android:summary="@string/gesture_bar_width_summary"
+            android:defaultValue="72"
+            android:max="100"
+            android:persistent="true"
+            launcher:min="20"
+            launcher:seekBarIncrement="2"
+            launcher:showSeekBarValue="true" />
+
+        <SeekBarPreference
+            android:layout="@layout/bluenixx_expressive_slider"
+            android:key="pref_gesture_bar_thickness"
+            android:title="@string/gesture_bar_thickness_title"
+            android:summary="@string/gesture_bar_thickness_summary"
+            android:defaultValue="4"
+            android:max="12"
+            android:persistent="true"
+            launcher:min="2"
+            launcher:seekBarIncrement="1"
+            launcher:showSeekBarValue="true" />
+
+        <SeekBarPreference
+            android:layout="@layout/bluenixx_expressive_slider"
+            android:key="pref_gesture_bar_height"
+            android:title="@string/gesture_bar_height_title"
+            android:summary="@string/gesture_bar_height_summary"
+            android:defaultValue="0"
+            android:max="40"
+            android:persistent="true"
+            launcher:min="0"
+            launcher:seekBarIncrement="2"
+            launcher:showSeekBarValue="true" />
+
+        <ListPreference
+            android:key="pref_gesture_bar_color"
+            android:title="@string/gesture_bar_color_title"
+            android:summary="@string/gesture_bar_color_summary"
+            android:entries="@array/gesture_bar_color_entries"
+            android:entryValues="@array/gesture_bar_color_values"
+            android:defaultValue="#FFFFFFFF"
+            android:persistent="true" />
+
+        <SeekBarPreference
+            android:layout="@layout/bluenixx_expressive_slider"
+            android:key="pref_gesture_bar_opacity"
+            android:title="@string/gesture_bar_opacity_title"
+            android:summary="@string/gesture_bar_opacity_summary"
+            android:defaultValue="100"
+            android:max="100"
+            android:persistent="true"
+            launcher:min="10"
+            launcher:seekBarIncrement="5"
+            launcher:showSeekBarValue="true" />
+
+    </androidx.preference.PreferenceScreen>
+
+    <androidx.preference.PreferenceScreen
         android:key="bluenixx_category_advanced"
         android:persistent="false"
         android:title="@string/bluenixx_category_advanced">

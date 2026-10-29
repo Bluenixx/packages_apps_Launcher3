@@ -30,6 +30,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.LauncherApps;
+import android.graphics.Color;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
@@ -230,6 +231,58 @@ public class SettingsActivity extends FragmentActivity
             super.onCreate(savedInstanceState);
         }
 
+        private void installGestureBarSettingsBridge() {
+            final String[] keys = {
+                    "pref_gesture_bar_width",
+                    "pref_gesture_bar_thickness",
+                    "pref_gesture_bar_height",
+                    "pref_gesture_bar_color",
+                    "pref_gesture_bar_opacity"
+            };
+            for (String key : keys) {
+                Preference preference = findPreference(key);
+                if (preference == null) continue;
+                preference.setOnPreferenceChangeListener((pref, newValue) -> {
+                    try {
+                        String settingName;
+                        int value;
+                        switch (key) {
+                            case "pref_gesture_bar_width":
+                                settingName = "bluenixx_gesture_bar_width_dp";
+                                value = ((Number) newValue).intValue();
+                                break;
+                            case "pref_gesture_bar_thickness":
+                                settingName = "bluenixx_gesture_bar_thickness_dp";
+                                value = ((Number) newValue).intValue();
+                                break;
+                            case "pref_gesture_bar_height":
+                                settingName = "bluenixx_gesture_bar_bottom_offset_dp";
+                                value = ((Number) newValue).intValue();
+                                break;
+                            case "pref_gesture_bar_opacity":
+                                settingName = "bluenixx_gesture_bar_opacity";
+                                value = ((Number) newValue).intValue();
+                                break;
+                            case "pref_gesture_bar_color":
+                                settingName = "bluenixx_gesture_bar_color";
+                                value = Color.parseColor((String) newValue);
+                                break;
+                            default:
+                                return true;
+                        }
+                        if (getContext() != null) {
+                            Settings.System.putInt(getContext().getContentResolver(),
+                                    settingName, value);
+                        }
+                    } catch (IllegalArgumentException | SecurityException e) {
+                        android.util.Log.e("LauncherSettings",
+                                "Unable to publish gesture bar setting for " + key, e);
+                    }
+                    return true;
+                });
+            }
+        }
+
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             final Bundle args = getArguments();
@@ -241,6 +294,7 @@ public class SettingsActivity extends FragmentActivity
 
             getPreferenceManager().setSharedPreferencesName(LauncherFiles.SHARED_PREFERENCES_KEY);
             setPreferencesFromResource(R.xml.launcher_preferences, rootKey);
+            installGestureBarSettingsBridge();
 
             PreferenceScreen screen = getPreferenceScreen();
             initGroup(screen);

@@ -3,5 +3,31 @@
     <string name="bluenixx_category_home">Tela inicial</string>
     <string name="bluenixx_category_drawer">Gaveta de apps</string>
     <string name="bluenixx_category_icons">Ícones</string>
+    <string name="bluenixx_category_navigation_bar">Barra de navegação por gestos</string>
+    <string name="gesture_bar_width_title">Largura da barra</string>
+    <string name="gesture_bar_width_summary">Ajuste o comprimento do indicador de gestos.</string>
+    <string name="gesture_bar_thickness_title">Espessura da barra</string>
+    <string name="gesture_bar_thickness_summary">Ajuste a espessura do indicador.</string>
+    <string name="gesture_bar_height_title">Altura da barra</string>
+    <string name="gesture_bar_height_summary">Eleve o indicador em relação à borda inferior.</string>
+    <string name="gesture_bar_color_title">Cor da barra</string>
+    <string name="gesture_bar_color_summary">Escolha a cor do indicador de gestos.</string>
+    <string name="gesture_bar_opacity_title">Opacidade da barra</string>
+    <string name="gesture_bar_opacity_summary">Ajuste a opacidade do indicador.</string>
     <string name="bluenixx_category_advanced">Avançado</string>
+
+    <string-array name="gesture_bar_color_entries">
+        <item>Branco</item>
+        <item>Preto</item>
+        <item>Azul</item>
+        <item>Rosa</item>
+        <item>Roxo do sistema</item>
+    </string-array>
+    <string-array name="gesture_bar_color_values">
+        <item>#FFFFFFFF</item>
+        <item>#FF000000</item>
+        <item>#FF4D9FFF</item>
+        <item>#FFFF70B7</item>
+        <item>#FFB7A1FF</item>
+    </string-array>
 </resources>
